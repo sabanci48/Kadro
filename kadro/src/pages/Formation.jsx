@@ -56,6 +56,19 @@ function persistColors(formationId, home, away) {
   localStorage.setItem(`kadro_colors_${formationId}`, JSON.stringify({ home, away }))
 }
 
+function loadPlayerCount(formationId) {
+  try {
+    const s = localStorage.getItem(`kadro_pc_${formationId}`)
+    return s ? parseInt(s, 10) : 11
+  } catch { return 11 }
+}
+
+function persistPlayerCount(formationId, count) {
+  if (formationId && formationId !== 'new') {
+    localStorage.setItem(`kadro_pc_${formationId}`, String(count))
+  }
+}
+
 function ColorPicker({ label, value, onChange }) {
   return (
     <div>
@@ -117,7 +130,8 @@ export default function Formation() {
   const [notes, setNotes] = useState('')
 
   const [squadPlayers, setSquadPlayers] = useState([])
-  const [assignments, setAssignments] = useState({})
+  const [assignments, setAssignments] = useState({})       // single view only
+  const [homeAssignments, setHomeAssignments] = useState({}) // match view home team only
   const [awayAssignments, setAwayAssignments] = useState({})
   const [activeSlot, setActiveSlot] = useState(null)
   const [activeTeam, setActiveTeam] = useState('home')
@@ -208,6 +222,7 @@ export default function Formation() {
     setHomeTeamName(formation.home_team_name || 'Home Team')
     setAwayTeamName(formation.away_team_name || 'Away Team')
     setAwayFormationType(formation.away_formation_type || '4-3-3')
+    setPlayerCount(loadPlayerCount(id))
 
     const colors = loadColors(id)
     setHomeTeamColor(colors.home)
@@ -216,12 +231,15 @@ export default function Formation() {
 
     const { data: fslots } = await supabase.from('formation_slots').select('*, players(*)').eq('formation_id', id)
     if (fslots) {
-      const home = {}, away = {}
+      const single = {}, home = {}, away = {}
+      const hasAwayTeam = fslots.some(s => s.team === 'away')
       fslots.forEach(s => {
         if (s.team === 'away') away[s.slot_key] = s.players
-        else home[s.slot_key] = s.players
+        else if (s.team === 'home' && hasAwayTeam) home[s.slot_key] = s.players
+        else single[s.slot_key] = s.players
       })
-      setAssignments(home)
+      setAssignments(single)
+      setHomeAssignments(home)
       setAwayAssignments(away)
     }
     setLoading(false)
@@ -232,12 +250,13 @@ export default function Formation() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
+    const effectiveFormationType = FORMAT_LABELS[playerCount] ?? formationType
     const payload = {
       user_id: user.id,
       name: formationName || null,
       is_public: isPublic,
-      formation_type: formationType,
-      away_formation_type: awayFormationType,
+      formation_type: effectiveFormationType,
+      away_formation_type: effectiveFormationType,
       match_date: matchDate || null,
       result: result || null,
       notes: notes || null,
@@ -256,6 +275,9 @@ export default function Formation() {
     await supabase.from('formation_slots').delete().eq('formation_id', formationId)
     const slotRows = []
     Object.entries(assignments).forEach(([key, player]) => {
+      if (player) slotRows.push({ formation_id: formationId, slot_key: key, player_id: player.id, team: 'single', is_substitute: key.startsWith('SUB') })
+    })
+    Object.entries(homeAssignments).forEach(([key, player]) => {
       if (player) slotRows.push({ formation_id: formationId, slot_key: key, player_id: player.id, team: 'home', is_substitute: key.startsWith('SUB') })
     })
     Object.entries(awayAssignments).forEach(([key, player]) => {
@@ -265,6 +287,7 @@ export default function Formation() {
 
     setSaving(false)
     persistColors(formationId, homeTeamColor, awayTeamColor)
+    persistPlayerCount(formationId, playerCount)
     navigate(`/formation/${formationId}`, { replace: true })
     if (isNew) window.location.reload()
   }
@@ -293,12 +316,14 @@ export default function Formation() {
 
   function handlePlayerSelect(player) {
     if (activeTeam === 'away') setAwayAssignments(prev => ({ ...prev, [activeSlot.key]: player }))
+    else if (viewMode === 'match') setHomeAssignments(prev => ({ ...prev, [activeSlot.key]: player }))
     else setAssignments(prev => ({ ...prev, [activeSlot.key]: player }))
     setActiveSlot(null)
   }
 
   function handlePlayerRemove() {
     if (activeTeam === 'away') setAwayAssignments(prev => { const n = { ...prev }; delete n[activeSlot.key]; return n })
+    else if (viewMode === 'match') setHomeAssignments(prev => { const n = { ...prev }; delete n[activeSlot.key]; return n })
     else setAssignments(prev => { const n = { ...prev }; delete n[activeSlot.key]; return n })
     setActiveSlot(null)
   }
@@ -311,7 +336,7 @@ export default function Formation() {
     )
   }
 
-  const currentAssignments = activeTeam === 'away' ? awayAssignments : assignments
+  const currentAssignments = activeTeam === 'away' ? awayAssignments : viewMode === 'match' ? homeAssignments : assignments
   const hasPlayer = activeSlot && currentAssignments[activeSlot.key]
 
   return (
@@ -560,7 +585,7 @@ export default function Formation() {
                       <PlayerSlot
                         key={`h-${slot.key}`}
                         slot={effectiveSlot(baseSlot, posKey)}
-                        player={assignments[slot.key]}
+                        player={homeAssignments[slot.key]}
                         onClick={() => openPicker(slot, 'home')}
                         onPointerDown={e => startDrag(e, posKey, matchPitchRef.current)}
                         isDragging={dragLive?.posKey === posKey}
@@ -594,7 +619,7 @@ export default function Formation() {
               <div style={{ borderTop: '1px solid rgba(29,78,216,0.2)', marginTop: 2 }}>
                 <BenchSection
                   slots={benchSlots}
-                  players={assignments}
+                  players={homeAssignments}
                   onSlotClick={s => openPicker(s, 'home')}
                   color="blue"
                   label={`${homeTeamName} Bench`}
@@ -624,7 +649,7 @@ export default function Formation() {
           </p>
           <div className="flex flex-col gap-2">
             {[...slots, ...benchSlots].map(slot => {
-              const player = assignments[slot.key] || null
+              const player = (viewMode === 'match' ? homeAssignments : assignments)[slot.key] || null
               if (!player) return null
               const overall = !isNew ? getPlayerOverall(id, player.id) : null
               const goals = !isNew ? getPlayerGoals(id, player.id) : 0

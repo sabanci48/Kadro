@@ -1,8 +1,43 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
-import SoccerBall from '../components/icons/SoccerBall'
 import Footer from '../components/Layout/Footer'
+
+function PitchLogo({ size = 88 }) {
+  const h = Math.round(size * 110 / 90)
+  const sw = 2.2
+  const green = '#4ade80'
+  return (
+    <svg viewBox="0 0 90 110" width={size} height={h} fill="none" style={{ filter: 'drop-shadow(0 0 18px rgba(74,222,128,0.5))' }}>
+      <rect x="3" y="3" width="84" height="104" rx="1.5" stroke={green} strokeWidth={sw} />
+      <path d="M3,14 A11,11 0 0 0 14,3" stroke={green} strokeWidth={sw} />
+      <path d="M76,3 A11,11 0 0 0 87,14" stroke={green} strokeWidth={sw} />
+      <path d="M3,96 A11,11 0 0 1 14,107" stroke={green} strokeWidth={sw} />
+      <path d="M76,107 A11,11 0 0 1 87,96" stroke={green} strokeWidth={sw} />
+      <line x1="3" y1="55" x2="87" y2="55" stroke={green} strokeWidth={sw} />
+      <circle cx="45" cy="55" r="13" stroke={green} strokeWidth={sw} />
+      <circle cx="45" cy="55" r="2.8" fill={green} />
+      <rect x="18" y="3" width="54" height="26" stroke={green} strokeWidth={sw} />
+      <rect x="30" y="3" width="30" height="12" stroke={green} strokeWidth={sw} />
+      <circle cx="45" cy="21" r="2.2" fill={green} />
+      <path d="M26,29 A20,20 0 0 1 64,29" stroke={green} strokeWidth={sw} />
+      <rect x="18" y="81" width="54" height="26" stroke={green} strokeWidth={sw} />
+      <rect x="30" y="95" width="30" height="12" stroke={green} strokeWidth={sw} />
+      <circle cx="45" cy="89" r="2.2" fill={green} />
+      <path d="M26,81 A20,20 0 0 0 64,81" stroke={green} strokeWidth={sw} />
+      <circle cx="45" cy="38" r="3.5" fill={green} />
+      <circle cx="14" cy="44" r="3.5" fill={green} />
+      <circle cx="76" cy="44" r="3.5" fill={green} />
+      <circle cx="27" cy="48" r="3.5" fill={green} />
+      <circle cx="63" cy="48" r="3.5" fill={green} />
+      <circle cx="16" cy="67" r="3.5" fill={green} />
+      <circle cx="36" cy="70" r="3.5" fill={green} />
+      <circle cx="54" cy="70" r="3.5" fill={green} />
+      <circle cx="74" cy="67" r="3.5" fill={green} />
+      <circle cx="45" cy="78" r="3.5" fill={green} />
+    </svg>
+  )
+}
 
 export default function Signup() {
   const navigate = useNavigate()
@@ -76,17 +111,8 @@ export default function Signup() {
 
       <div className="flex-1 flex flex-col justify-center px-6" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
         <div className="flex flex-col items-center mb-10">
-          <div
-            className="flex items-center justify-center mb-5"
-            style={{
-              width: '88px',
-              height: '88px',
-              borderRadius: '24px',
-              background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
-              boxShadow: '0 0 50px rgba(74,222,128,0.3)',
-            }}
-          >
-            <SoccerBall size={56} />
+          <div className="mb-5">
+            <PitchLogo size={88} />
           </div>
           <h1
             className="text-5xl font-black text-white"
@@ -94,7 +120,7 @@ export default function Signup() {
           >
             KADRO
           </h1>
-          <p className="text-gray-600 text-sm mt-2">Create your account</p>
+          <p className="text-sm mt-2 tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.45)' }}>Create your account</p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">

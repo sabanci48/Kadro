@@ -157,7 +157,6 @@ export default function PlayerPickerModal({ slot, players, onSelect, onRemove, o
             <circle cx="11" cy="11" r="7" /><path d="M21 21l-4.35-4.35" />
           </svg>
           <input
-            autoFocus
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search by name or number…"
