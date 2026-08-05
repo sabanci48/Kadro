@@ -292,7 +292,7 @@ export default function Home() {
             backgroundImage: 'url(/stadium-bg.png)',
             backgroundSize: 'cover',
             backgroundPosition: 'center 25%',
-            opacity: 0.18,
+            opacity: 0.58,
           }}
         />
         {/* gradient: darker at top (header), lighter in middle (calendar), dark at bottom (nav) */}
