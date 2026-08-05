@@ -146,7 +146,7 @@ export default function Login() {
               required
               placeholder="you@example.com"
               className="w-full px-4 py-4 rounded-xl text-white placeholder-gray-700 text-[15px]"
-              style={{ background: 'rgba(10,10,10,0.85)', border: '1.5px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)' }}
+              style={{ background: 'rgba(10,10,10,0.85)', border: '1.5px solid rgba(255,255,255,0.20)', backdropFilter: 'blur(8px)' }}
             />
           </div>
 
@@ -161,7 +161,7 @@ export default function Login() {
               required
               placeholder="••••••••"
               className="w-full px-4 py-4 rounded-xl text-white placeholder-gray-700 text-[15px]"
-              style={{ background: 'rgba(10,10,10,0.85)', border: '1.5px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)' }}
+              style={{ background: 'rgba(10,10,10,0.85)', border: '1.5px solid rgba(255,255,255,0.20)', backdropFilter: 'blur(8px)' }}
             />
           </div>
 

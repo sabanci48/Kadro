@@ -41,7 +41,7 @@ export default function PlayerSlot({ slot, player, onClick, onPointerDown, color
           <div
             className="flex items-center justify-center rounded-md"
             style={{
-              background: 'rgba(0,0,0,0.82)',
+              background: 'rgba(0,0,0,0.65)',
               padding: pillPad,
               minWidth: small ? '32px' : '42px',
               maxWidth: small ? '44px' : '56px',
@@ -62,11 +62,11 @@ export default function PlayerSlot({ slot, player, onClick, onPointerDown, color
             style={{
               width: jerseySize,
               height: Math.round(jerseySize * 50 / 44),
-              border: '1.5px dashed rgba(255,255,255,0.2)',
+              border: '1.5px dashed rgba(255,255,255,0.32)',
               background: 'rgba(0,0,0,0.25)',
             }}
           >
-            <span style={{ fontSize: `${jerseySize * 0.4}px`, color: 'rgba(255,255,255,0.3)' }}>+</span>
+            <span style={{ fontSize: `${jerseySize * 0.4}px`, color: 'rgba(255,255,255,0.45)' }}>+</span>
           </div>
         </>
       )}

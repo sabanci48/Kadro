@@ -8,7 +8,7 @@ export default function Header({ title, showBack = true, right }) {
       className="flex items-end justify-between px-4 sticky top-0 z-40"
       style={{
         background: 'rgba(13,13,13,0.97)',
-        borderBottom: '1px solid rgba(255,255,255,0.07)',
+        borderBottom: '1px solid rgba(255,255,255,0.13)',
         paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)',
         paddingBottom: '12px',
         backdropFilter: 'blur(16px)',

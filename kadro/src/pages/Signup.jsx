@@ -136,7 +136,7 @@ export default function Signup() {
                 onChange={e => props.onChange(e.target.value)}
                 required
                 className="w-full px-4 py-4 rounded-xl text-white placeholder-gray-700 text-[15px]"
-                style={{ background: '#1a1a1a', border: '1.5px solid rgba(255,255,255,0.08)' }}
+                style={{ background: '#242424', border: '1.5px solid rgba(255,255,255,0.15)' }}
               />
             </div>
           ))}

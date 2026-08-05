@@ -30,7 +30,7 @@ const isGoalCat = cat => cat.toLowerCase() === GOAL_KEY
 
 function RatingRow({ label, value = 0, onChange }) {
   return (
-    <div className="flex items-center gap-3 py-2.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+    <div className="flex items-center gap-3 py-2.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.09)' }}>
       <span className="text-sm font-semibold flex-shrink-0" style={{ color: 'rgba(255,255,255,0.7)', minWidth: 88 }}>
         {label}
       </span>
@@ -45,15 +45,15 @@ function RatingRow({ label, value = 0, onChange }) {
               borderRadius: '50%',
               background: n <= value
                 ? n <= 4 ? '#f87171' : n <= 7 ? '#facc15' : '#4ade80'
-                : 'rgba(255,255,255,0.07)',
-              border: n <= value ? 'none' : '1px solid rgba(255,255,255,0.1)',
+                : 'rgba(255,255,255,0.13)',
+              border: n <= value ? 'none' : '1px solid rgba(255,255,255,0.18)',
             }}
           />
         ))}
       </div>
       <span
         className="text-sm font-black flex-shrink-0"
-        style={{ minWidth: 22, textAlign: 'right', color: value ? '#4ade80' : 'rgba(255,255,255,0.2)' }}
+        style={{ minWidth: 22, textAlign: 'right', color: value ? '#4ade80' : 'rgba(255,255,255,0.32)' }}
       >
         {value || '—'}
       </span>
@@ -63,7 +63,7 @@ function RatingRow({ label, value = 0, onChange }) {
 
 function GoalCounter({ value = 0, onChange }) {
   return (
-    <div className="flex items-center gap-3 py-2.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+    <div className="flex items-center gap-3 py-2.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.09)' }}>
       <span className="text-sm font-semibold flex-shrink-0" style={{ color: 'rgba(255,255,255,0.7)', minWidth: 88 }}>
         Goal ⚽
       </span>
@@ -71,7 +71,7 @@ function GoalCounter({ value = 0, onChange }) {
         <button
           onClick={() => onChange(Math.max(0, value - 1))}
           className="w-9 h-9 rounded-xl flex items-center justify-center text-lg font-black transition-all active:scale-90"
-          style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.1)' }}
+          style={{ background: 'rgba(255,255,255,0.13)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.18)' }}
         >
           −
         </button>
@@ -139,7 +139,7 @@ export default function PlayerStatsModal({ player, formationId, onClose }) {
             <button
               onClick={() => setManaging(false)}
               className="w-8 h-8 flex items-center justify-center rounded-xl transition-all active:scale-90"
-              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}
+              style={{ background: 'rgba(255,255,255,0.11)', border: '1px solid rgba(255,255,255,0.18)' }}
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2.5} style={{ width: 14, height: 14 }}>
                 <path d="M15 18l-6-6 6-6" strokeLinecap="round" />
@@ -154,7 +154,7 @@ export default function PlayerStatsModal({ player, formationId, onClose }) {
               <div
                 key={cat}
                 className="flex items-center justify-between py-3"
-                style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+                style={{ borderBottom: '1px solid rgba(255,255,255,0.11)' }}
               >
                 <span className="text-sm font-semibold text-white">{cat}</span>
                 <button
@@ -176,7 +176,7 @@ export default function PlayerStatsModal({ player, formationId, onClose }) {
               onKeyDown={e => e.key === 'Enter' && addCategory()}
               placeholder="New category name…"
               className="flex-1 px-4 py-3 rounded-xl text-white text-sm placeholder-gray-600 outline-none"
-              style={{ background: '#1a1a1a', border: '1.5px solid rgba(255,255,255,0.08)' }}
+              style={{ background: '#242424', border: '1.5px solid rgba(255,255,255,0.15)' }}
             />
             <button
               onClick={addCategory}
@@ -256,7 +256,7 @@ export default function PlayerStatsModal({ player, formationId, onClose }) {
         <button
           onClick={() => setManaging(true)}
           className="w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#9ca3af' }}
+          style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.15)', color: '#9ca3af' }}
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: 14, height: 14 }}>
             <path d="M12 5v14M5 12h14" strokeLinecap="round" />

@@ -84,7 +84,7 @@ function ColorPicker({ label, value, onChange }) {
               style={{
                 width: 38, height: 38, borderRadius: '50%',
                 background: c.from,
-                border: value === c.key ? '3px solid white' : '2px solid rgba(255,255,255,0.1)',
+                border: value === c.key ? '3px solid white' : '2px solid rgba(255,255,255,0.18)',
                 boxShadow: value === c.key ? `0 0 14px ${c.from}90` : 'none',
                 transform: value === c.key ? 'scale(1.18)' : 'scale(1)',
                 transition: 'all 0.15s ease',
@@ -143,7 +143,8 @@ export default function Formation() {
   const [homeTeamColor, setHomeTeamColor] = useState('blue')
   const [awayTeamColor, setAwayTeamColor] = useState('red')
   const [isPublic, setIsPublic] = useState(false)
-  const [copied, setCopied] = useState(false)
+  const [copiedSingle, setCopiedSingle] = useState(false)
+  const [copiedMatch, setCopiedMatch] = useState(false)
   const [playerCount, setPlayerCount] = useState(11)
   const [customPositions, setCustomPositions] = useState({})
   const [dragLive, setDragLive] = useState(null)
@@ -346,7 +347,7 @@ export default function Formation() {
         className="flex items-end justify-between px-4 sticky top-0 z-40"
         style={{
           background: 'rgba(13,13,13,0.97)',
-          borderBottom: '1px solid rgba(255,255,255,0.07)',
+          borderBottom: '1px solid rgba(255,255,255,0.13)',
           paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)',
           paddingBottom: '12px',
           backdropFilter: 'blur(16px)',
@@ -402,7 +403,7 @@ export default function Formation() {
               {/* View mode toggle */}
               <div
                 className="flex items-center gap-1 rounded-xl p-1"
-                style={{ background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.08)' }}
+                style={{ background: '#242424', border: '1px solid rgba(255,255,255,0.15)' }}
               >
                 <button
                   onClick={() => setViewMode('single')}
@@ -430,14 +431,14 @@ export default function Formation() {
                 onChange={e => setPlayerCount(Number(e.target.value))}
                 className="px-3 py-1.5 rounded-xl text-xs font-bold outline-none appearance-none cursor-pointer"
                 style={{
-                  background: '#1a1a1a',
-                  border: '1px solid rgba(255,255,255,0.08)',
+                  background: '#242424',
+                  border: '1px solid rgba(255,255,255,0.15)',
                   color: '#4ade80',
                   colorScheme: 'dark',
                 }}
               >
                 {[5,6,7,8,9,10,11].map(n => (
-                  <option key={n} value={n} style={{ background: '#1a1a1a', color: '#4ade80' }}>
+                  <option key={n} value={n} style={{ background: '#242424', color: '#4ade80' }}>
                     {n}v{n}
                   </option>
                 ))}
@@ -659,7 +660,7 @@ export default function Formation() {
                   key={slot.key}
                   onClick={() => setStatsPlayer(player)}
                   className="flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all active:scale-[0.98]"
-                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
+                  style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.13)' }}
                 >
                   <div
                     className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0"
@@ -690,7 +691,7 @@ export default function Formation() {
                         <span className="text-[8px] font-bold" style={{ color: '#4ade80' }}>OVR</span>
                       </div>
                     ) : (
-                      <span className="text-xs font-bold" style={{ color: 'rgba(255,255,255,0.2)' }}>Rate →</span>
+                      <span className="text-xs font-bold" style={{ color: 'rgba(255,255,255,0.32)' }}>Rate →</span>
                     )}
                   </div>
                 </button>
@@ -728,7 +729,7 @@ export default function Formation() {
                       <span className="text-[8px] font-bold" style={{ color: '#f87171' }}>OVR</span>
                     </div>
                   ) : (
-                    <span className="text-xs font-bold" style={{ color: 'rgba(255,255,255,0.2)' }}>Rate →</span>
+                    <span className="text-xs font-bold" style={{ color: 'rgba(255,255,255,0.32)' }}>Rate →</span>
                   )}
                 </button>
               )
@@ -736,7 +737,7 @@ export default function Formation() {
           </div>
 
           {isNew && (
-            <p className="text-center text-xs mt-6" style={{ color: 'rgba(255,255,255,0.2)' }}>
+            <p className="text-center text-xs mt-6" style={{ color: 'rgba(255,255,255,0.32)' }}>
               Save the formation first to enable ratings
             </p>
           )}
@@ -753,7 +754,7 @@ export default function Formation() {
               onChange={e => setFormationName(e.target.value)}
               placeholder="e.g. League, Friendly, Cup…"
               className="w-full px-4 py-3.5 rounded-xl text-white text-[15px] outline-none"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1.5px solid rgba(255,255,255,0.08)' }}
+              style={{ background: 'rgba(255,255,255,0.09)', border: '1.5px solid rgba(255,255,255,0.15)' }}
             />
           </div>
 
@@ -764,7 +765,7 @@ export default function Formation() {
               onChange={e => setResult(e.target.value)}
               placeholder="e.g. 3-1"
               className="w-full px-4 py-3.5 rounded-xl text-white text-[15px] outline-none"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1.5px solid rgba(255,255,255,0.08)' }}
+              style={{ background: 'rgba(255,255,255,0.09)', border: '1.5px solid rgba(255,255,255,0.15)' }}
             />
           </div>
 
@@ -775,7 +776,7 @@ export default function Formation() {
               value={matchDate}
               onChange={e => setMatchDate(e.target.value)}
               className="w-full px-4 py-3.5 rounded-xl text-white text-[15px] outline-none"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1.5px solid rgba(255,255,255,0.08)', colorScheme: 'dark' }}
+              style={{ background: 'rgba(255,255,255,0.09)', border: '1.5px solid rgba(255,255,255,0.15)', colorScheme: 'dark' }}
             />
           </div>
 
@@ -787,7 +788,7 @@ export default function Formation() {
                   value={homeTeamName}
                   onChange={e => setHomeTeamName(e.target.value)}
                   className="w-full px-4 py-3.5 rounded-xl text-white text-[15px] outline-none"
-                  style={{ background: 'rgba(255,255,255,0.05)', border: '1.5px solid rgba(255,255,255,0.08)' }}
+                  style={{ background: 'rgba(255,255,255,0.09)', border: '1.5px solid rgba(255,255,255,0.15)' }}
                 />
               </div>
               <div>
@@ -796,7 +797,7 @@ export default function Formation() {
                   value={awayTeamName}
                   onChange={e => setAwayTeamName(e.target.value)}
                   className="w-full px-4 py-3.5 rounded-xl text-white text-[15px] outline-none"
-                  style={{ background: 'rgba(255,255,255,0.05)', border: '1.5px solid rgba(255,255,255,0.08)' }}
+                  style={{ background: 'rgba(255,255,255,0.09)', border: '1.5px solid rgba(255,255,255,0.15)' }}
                 />
               </div>
             </>
@@ -817,7 +818,7 @@ export default function Formation() {
             <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 block">Share</label>
             <div
               className="flex items-center justify-between px-4 py-4 rounded-xl"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1.5px solid rgba(255,255,255,0.08)' }}
+              style={{ background: 'rgba(255,255,255,0.09)', border: '1.5px solid rgba(255,255,255,0.15)' }}
             >
               <div>
                 <p className="text-sm font-semibold text-white">Public Link</p>
@@ -828,7 +829,7 @@ export default function Formation() {
                 style={{
                   position: 'relative', flexShrink: 0,
                   width: 46, height: 26, borderRadius: 13,
-                  background: isPublic ? '#16a34a' : 'rgba(255,255,255,0.1)',
+                  background: isPublic ? '#16a34a' : 'rgba(255,255,255,0.18)',
                   opacity: isNew ? 0.4 : 1,
                   cursor: isNew ? 'not-allowed' : 'pointer',
                   border: 'none', transition: 'background 0.2s',
@@ -846,40 +847,111 @@ export default function Formation() {
             </div>
 
             {isPublic && !isNew && (
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(`${window.location.origin}/share/${id}`)
-                  setCopied(true)
-                  setTimeout(() => setCopied(false), 2000)
-                }}
-                className="mt-2 w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-                style={{
-                  background: copied ? 'rgba(34,197,94,0.12)' : 'rgba(255,255,255,0.05)',
-                  border: `1.5px solid ${copied ? 'rgba(34,197,94,0.3)' : 'rgba(255,255,255,0.08)'}`,
-                  color: copied ? '#4ade80' : '#9ca3af',
-                }}
-              >
-                {copied ? (
-                  <>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} style={{ width: 14, height: 14 }}>
-                      <polyline points="20 6 9 17 4 12" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                    Copied!
-                  </>
-                ) : (
-                  <>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: 14, height: 14 }}>
-                      <rect x="9" y="9" width="13" height="13" rx="2" />
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                    </svg>
-                    Copy Share Link
-                  </>
+              <div className="mt-2 flex flex-col gap-2">
+                {/* 1-Team link — shown when single assignments exist */}
+                {Object.values(assignments).some(Boolean) && (
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(`${window.location.origin}/share/${id}?view=single`)
+                      setCopiedSingle(true)
+                      setTimeout(() => setCopiedSingle(false), 2000)
+                    }}
+                    className="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                    style={{
+                      background: copiedSingle ? 'rgba(34,197,94,0.12)' : 'rgba(255,255,255,0.09)',
+                      border: `1.5px solid ${copiedSingle ? 'rgba(34,197,94,0.3)' : 'rgba(255,255,255,0.15)'}`,
+                      color: copiedSingle ? '#4ade80' : '#9ca3af',
+                    }}
+                  >
+                    {copiedSingle ? (
+                      <>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} style={{ width: 13, height: 13 }}>
+                          <polyline points="20 6 9 17 4 12" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: 13, height: 13 }}>
+                          <rect x="9" y="9" width="13" height="13" rx="2" />
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                        </svg>
+                        Copy 1-Team Link
+                      </>
+                    )}
+                  </button>
                 )}
-              </button>
+                {/* 2-Teams link — shown when match assignments exist */}
+                {(Object.values(homeAssignments).some(Boolean) || Object.values(awayAssignments).some(Boolean)) && (
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(`${window.location.origin}/share/${id}?view=match`)
+                      setCopiedMatch(true)
+                      setTimeout(() => setCopiedMatch(false), 2000)
+                    }}
+                    className="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                    style={{
+                      background: copiedMatch ? 'rgba(34,197,94,0.12)' : 'rgba(255,255,255,0.09)',
+                      border: `1.5px solid ${copiedMatch ? 'rgba(34,197,94,0.3)' : 'rgba(255,255,255,0.15)'}`,
+                      color: copiedMatch ? '#4ade80' : '#9ca3af',
+                    }}
+                  >
+                    {copiedMatch ? (
+                      <>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} style={{ width: 13, height: 13 }}>
+                          <polyline points="20 6 9 17 4 12" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: 13, height: 13 }}>
+                          <rect x="9" y="9" width="13" height="13" rx="2" />
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                        </svg>
+                        Copy 2-Teams Link
+                      </>
+                    )}
+                  </button>
+                )}
+                {/* Fallback: no players assigned yet */}
+                {!Object.values(assignments).some(Boolean) && !Object.values(homeAssignments).some(Boolean) && !Object.values(awayAssignments).some(Boolean) && (
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(`${window.location.origin}/share/${id}`)
+                      setCopiedSingle(true)
+                      setTimeout(() => setCopiedSingle(false), 2000)
+                    }}
+                    className="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                    style={{
+                      background: copiedSingle ? 'rgba(34,197,94,0.12)' : 'rgba(255,255,255,0.09)',
+                      border: `1.5px solid ${copiedSingle ? 'rgba(34,197,94,0.3)' : 'rgba(255,255,255,0.15)'}`,
+                      color: copiedSingle ? '#4ade80' : '#9ca3af',
+                    }}
+                  >
+                    {copiedSingle ? (
+                      <>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} style={{ width: 13, height: 13 }}>
+                          <polyline points="20 6 9 17 4 12" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: 13, height: 13 }}>
+                          <rect x="9" y="9" width="13" height="13" rx="2" />
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                        </svg>
+                        Copy Share Link
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
             )}
 
             {isNew && (
-              <p className="text-xs text-center mt-2" style={{ color: 'rgba(255,255,255,0.2)' }}>
+              <p className="text-xs text-center mt-2" style={{ color: 'rgba(255,255,255,0.32)' }}>
                 Save the formation first to enable sharing
               </p>
             )}
@@ -893,7 +965,7 @@ export default function Formation() {
               rows={4}
               placeholder="Tactical notes, match summary…"
               className="w-full px-4 py-3.5 rounded-xl text-white text-[15px] outline-none resize-none"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1.5px solid rgba(255,255,255,0.08)' }}
+              style={{ background: 'rgba(255,255,255,0.09)', border: '1.5px solid rgba(255,255,255,0.15)' }}
             />
           </div>
         </div>

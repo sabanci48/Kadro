@@ -71,7 +71,7 @@ function MatchModal({ formation, onClose, onOpen, onDelete }) {
           <button
             onClick={onClose}
             className="w-8 h-8 flex items-center justify-center rounded-full transition-all active:scale-90"
-            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}
+            style={{ background: 'rgba(255,255,255,0.11)', border: '1px solid rgba(255,255,255,0.18)' }}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2.5} style={{ width: 14, height: 14 }}>
               <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" />
@@ -82,7 +82,7 @@ function MatchModal({ formation, onClose, onOpen, onDelete }) {
         {/* Score card */}
         <div
           className="mx-4 mb-4 rounded-2xl px-4 py-5"
-          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
+          style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.13)' }}
         >
           {hasResult ? (
             /* Match with result */
@@ -93,7 +93,7 @@ function MatchModal({ formation, onClose, onOpen, onDelete }) {
               </div>
               <div className="flex items-center gap-2 px-3 py-2 rounded-2xl" style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.25)' }}>
                 <span className="text-3xl font-black text-white" style={{ minWidth: 28, textAlign: 'center' }}>{homeScore}</span>
-                <span className="text-base font-bold" style={{ color: 'rgba(255,255,255,0.3)' }}>—</span>
+                <span className="text-base font-bold" style={{ color: 'rgba(255,255,255,0.45)' }}>—</span>
                 <span className="text-3xl font-black text-white" style={{ minWidth: 28, textAlign: 'center' }}>{awayScore}</span>
               </div>
               <div className="flex-1 text-left">
@@ -109,7 +109,7 @@ function MatchModal({ formation, onClose, onOpen, onDelete }) {
                 <p className="text-sm font-black text-white leading-tight">{home}</p>
               </div>
               <div className="flex flex-col items-center px-3">
-                <span className="text-xs font-bold tracking-widest" style={{ color: 'rgba(255,255,255,0.2)' }}>VS</span>
+                <span className="text-xs font-bold tracking-widest" style={{ color: 'rgba(255,255,255,0.32)' }}>VS</span>
               </div>
               <div className="flex-1 text-left">
                 <p className="text-[11px] font-bold uppercase tracking-wide mb-1" style={{ color: 'rgba(255,255,255,0.4)' }}>Away</p>
@@ -147,8 +147,8 @@ function MatchModal({ formation, onClose, onOpen, onDelete }) {
 
         {/* Notes */}
         {formation.notes && (
-          <div className="mx-4 mb-4 px-4 py-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'rgba(255,255,255,0.3)' }}>Notes</p>
+          <div className="mx-4 mb-4 px-4 py-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.11)', border: '1px solid rgba(255,255,255,0.11)' }}>
+            <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'rgba(255,255,255,0.45)' }}>Notes</p>
             <p className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.55)' }}>{formation.notes}</p>
           </div>
         )}
@@ -182,7 +182,7 @@ function MatchModal({ formation, onClose, onOpen, onDelete }) {
               <button
                 onClick={() => setConfirming(false)}
                 className="flex-1 py-3 rounded-2xl font-bold text-sm transition-all active:scale-[0.98]"
-                style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#9ca3af' }}
+                style={{ background: 'rgba(255,255,255,0.11)', border: '1px solid rgba(255,255,255,0.18)', color: '#9ca3af' }}
               >
                 Cancel
               </button>
@@ -314,7 +314,7 @@ export default function Home() {
           className="flex items-center justify-between px-4 sticky top-0 z-40"
           style={{
             background: 'rgba(4,8,10,0.92)',
-            borderBottom: '1px solid rgba(255,255,255,0.07)',
+            borderBottom: '1px solid rgba(255,255,255,0.13)',
             paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)',
             paddingBottom: '12px',
             backdropFilter: 'blur(16px)',
@@ -337,7 +337,7 @@ export default function Home() {
             <h2 className="text-4xl font-black text-white leading-none tracking-tight">
               {MONTHS[current.month]}
             </h2>
-            <p className="text-sm font-medium mt-1.5" style={{ color: 'rgba(255,255,255,0.3)' }}>
+            <p className="text-sm font-medium mt-1.5" style={{ color: 'rgba(255,255,255,0.45)' }}>
               {current.year}
               {monthCount > 0
                 ? ` · ${monthCount} formation${monthCount !== 1 ? 's' : ''}`
@@ -350,7 +350,7 @@ export default function Home() {
             <button
               onClick={prev}
               className="w-10 h-10 rounded-2xl flex items-center justify-center transition-all active:scale-90"
-              style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }}
+              style={{ background: 'rgba(255,255,255,0.13)', border: '1px solid rgba(255,255,255,0.18)' }}
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2.5} style={{ width: 15, height: 15 }}>
                 <path d="M15 18l-6-6 6-6" strokeLinecap="round" />
@@ -359,7 +359,7 @@ export default function Home() {
             <button
               onClick={next}
               className="w-10 h-10 rounded-2xl flex items-center justify-center transition-all active:scale-90"
-              style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }}
+              style={{ background: 'rgba(255,255,255,0.13)', border: '1px solid rgba(255,255,255,0.18)' }}
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2.5} style={{ width: 15, height: 15 }}>
                 <path d="M9 18l6-6-6-6" strokeLinecap="round" />
@@ -374,7 +374,7 @@ export default function Home() {
             <div
               key={i}
               className="text-center"
-              style={{ fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.06em' }}
+              style={{ fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,0.32)', letterSpacing: '0.06em' }}
             >
               {d}
             </div>
@@ -393,12 +393,12 @@ export default function Home() {
             const past = dateKey ? isPast(dateKey) : false
 
             /* visual state */
-            let bg = 'rgba(255,255,255,0.03)'
-            let border = '1px solid rgba(255,255,255,0.05)'
+            let bg = 'rgba(255,255,255,0.11)'
+            let border = '1px solid rgba(255,255,255,0.09)'
             let numColor = 'rgba(255,255,255,0.35)'
 
             if (!cell.current) {
-              bg = 'transparent'; border = 'none'; numColor = 'rgba(255,255,255,0.1)'
+              bg = 'transparent'; border = 'none'; numColor = 'rgba(255,255,255,0.18)'
             } else if (todayCell) {
               bg = 'rgba(74,222,128,0.1)'; border = '1.5px solid rgba(74,222,128,0.55)'; numColor = '#4ade80'
             } else if (formation) {
@@ -486,7 +486,7 @@ export default function Home() {
         {/* ── Legend ── */}
         <div
           className="flex items-center justify-center gap-5 mt-5 mx-4 py-3 rounded-2xl"
-          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}
+          style={{ background: 'rgba(255,255,255,0.11)', border: '1px solid rgba(255,255,255,0.09)' }}
         >
           <div className="flex items-center gap-1.5">
             <div className="w-5 h-0.5 rounded-full" style={{ background: '#4ade80' }} />

@@ -43,7 +43,7 @@ const tabs = [
   },
   {
     to: '/matches',
-    label: 'Matches',
+    label: 'Saved',
     icon: (active) => (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.5 : 2} className="w-5 h-5">
         <rect x="3" y="4" width="18" height="18" rx="2" />
@@ -75,7 +75,7 @@ export default function BottomNav() {
         className="flex items-end justify-around px-1"
         style={{
           background: 'rgba(10,10,10,0.97)',
-          borderTop: '1px solid rgba(255,255,255,0.07)',
+          borderTop: '1px solid rgba(255,255,255,0.13)',
           paddingTop: '8px',
           paddingBottom: 'max(20px, env(safe-area-inset-bottom))',
           backdropFilter: 'blur(16px)',

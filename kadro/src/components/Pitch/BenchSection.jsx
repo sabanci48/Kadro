@@ -27,10 +27,10 @@ export default function BenchSection({ slots, players, onSlotClick, color = 'blu
               onClick={() => onSlotClick(slot)}
               className="flex-shrink-0 flex flex-col items-center gap-1.5 rounded-xl p-2 transition-all group active:scale-95"
               style={{
-                background: player ? '#1a1a1a' : 'transparent',
+                background: player ? '#242424' : 'transparent',
                 border: player
-                  ? '1px solid rgba(255,255,255,0.08)'
-                  : '1.5px dashed rgba(255,255,255,0.15)',
+                  ? '1px solid rgba(255,255,255,0.15)'
+                  : '1.5px dashed rgba(255,255,255,0.22)',
                 width: '68px',
                 minHeight: '90px',
               }}
@@ -49,7 +49,7 @@ export default function BenchSection({ slots, players, onSlotClick, color = 'blu
               ) : (
                 <>
                   <div className="flex-1 flex items-center justify-center">
-                    <span style={{ fontSize: '22px', color: 'rgba(255,255,255,0.2)', lineHeight: 1 }}>+</span>
+                    <span style={{ fontSize: '22px', color: 'rgba(255,255,255,0.35)', lineHeight: 1 }}>+</span>
                   </div>
                   <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.25)' }}>Add</span>
                 </>

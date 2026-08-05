@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import FORMATIONS, { MATCH_FORMATS, FORMAT_LABELS } from '../lib/formations'
 import Pitch from '../components/Pitch/Pitch'
@@ -19,10 +19,13 @@ const ALL_BENCH = Array.from({ length: 7 }, (_, i) => ({ key: `SUB${i + 1}` }))
 
 export default function ShareFormation() {
   const { id } = useParams()
+  const [searchParams] = useSearchParams()
+  const viewParam = searchParams.get('view') // 'single' | 'match' | null
+
   const [formation, setFormation] = useState(null)
-  const [assignments, setAssignments] = useState({})
+  const [singleAssignments, setSingleAssignments] = useState({})
+  const [homeAssignments, setHomeAssignments] = useState({})
   const [awayAssignments, setAwayAssignments] = useState({})
-  const [isMatchView, setIsMatchView] = useState(false)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
 
@@ -45,15 +48,17 @@ export default function ShareFormation() {
       .eq('formation_id', id)
 
     if (fslots) {
-      const home = {}, away = {}
+      const single = {}, home = {}, away = {}
+      const hasAwaySlots = fslots.some(s => s.team === 'away')
       fslots.forEach(s => {
         if (!s.players) return
         if (s.team === 'away') away[s.slot_key] = s.players
-        else home[s.slot_key] = s.players
+        else if (s.team === 'home' && hasAwaySlots) home[s.slot_key] = s.players
+        else single[s.slot_key] = s.players
       })
-      setAssignments(home)
+      setSingleAssignments(single)
+      setHomeAssignments(home)
       setAwayAssignments(away)
-      setIsMatchView(Object.keys(away).length > 0)
     }
     setLoading(false)
   }
@@ -83,9 +88,16 @@ export default function ShareFormation() {
     )
   }
 
+  const hasAway = Object.keys(awayAssignments).length > 0
+  const isMatchView = viewParam === 'match' || (!viewParam && hasAway)
+  // For single view: prefer singleAssignments, fall back to homeAssignments (old data compat)
+  const displayAssignments = isMatchView
+    ? homeAssignments
+    : (Object.keys(singleAssignments).length > 0 ? singleAssignments : homeAssignments)
+
   const slots = (MATCH_FORMATS[11] ?? FORMATIONS[formation.formation_type]) || []
   const awaySlots = (MATCH_FORMATS[11] ?? FORMATIONS[formation.away_formation_type || formation.formation_type]) || []
-  const hasBench = ALL_BENCH.some(s => assignments[s.key])
+  const hasBench = ALL_BENCH.some(s => displayAssignments[s.key])
   const hasAwayBench = ALL_BENCH.some(s => awayAssignments[s.key])
   const hasResult = !!formation.result
   const [homeScore, awayScore] = hasResult ? formation.result.split('-').map(s => s.trim()) : []
@@ -99,7 +111,7 @@ export default function ShareFormation() {
         className="flex items-center justify-between px-5"
         style={{
           background: 'rgba(4,8,10,0.97)',
-          borderBottom: '1px solid rgba(255,255,255,0.07)',
+          borderBottom: '1px solid rgba(34,197,94,0.18)',
           paddingTop: 'calc(env(safe-area-inset-top, 0px) + 14px)',
           paddingBottom: '14px',
           backdropFilter: 'blur(16px)',
@@ -122,7 +134,7 @@ export default function ShareFormation() {
         </div>
         <span
           className="text-[10px] font-bold uppercase tracking-widest"
-          style={{ color: 'rgba(255,255,255,0.2)' }}
+          style={{ color: 'rgba(255,255,255,0.4)' }}
         >
           Lineup Card
         </span>
@@ -151,12 +163,16 @@ export default function ShareFormation() {
           {/* Score card */}
           <div
             className="rounded-2xl px-4 py-4 mb-3"
-            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
+            style={{
+              background: 'rgba(255,255,255,0.07)',
+              border: '1px solid rgba(34,197,94,0.22)',
+              boxShadow: '0 0 28px rgba(34,197,94,0.07), 0 2px 12px rgba(0,0,0,0.3)',
+            }}
           >
             {hasResult ? (
               <div className="flex items-center justify-between gap-3">
                 <div className="flex-1 text-right">
-                  <p className="text-[10px] font-bold uppercase tracking-wide mb-1" style={{ color: 'rgba(255,255,255,0.35)' }}>Home</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wide mb-1" style={{ color: 'rgba(255,255,255,0.5)' }}>Home</p>
                   <p className="text-base font-black text-white leading-tight">{home}</p>
                 </div>
                 <div
@@ -164,57 +180,42 @@ export default function ShareFormation() {
                   style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.25)' }}
                 >
                   <span className="text-2xl font-black text-white" style={{ minWidth: 24, textAlign: 'center' }}>{homeScore}</span>
-                  <span className="font-bold" style={{ color: 'rgba(255,255,255,0.3)' }}>—</span>
+                  <span className="font-bold" style={{ color: 'rgba(255,255,255,0.45)' }}>—</span>
                   <span className="text-2xl font-black text-white" style={{ minWidth: 24, textAlign: 'center' }}>{awayScore}</span>
                 </div>
                 <div className="flex-1 text-left">
-                  <p className="text-[10px] font-bold uppercase tracking-wide mb-1" style={{ color: 'rgba(255,255,255,0.35)' }}>Away</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wide mb-1" style={{ color: 'rgba(255,255,255,0.5)' }}>Away</p>
                   <p className="text-base font-black text-white leading-tight">{away}</p>
                 </div>
               </div>
             ) : (
               <div className="flex items-center justify-between gap-3">
                 <div className="flex-1 text-right">
-                  <p className="text-[10px] font-bold uppercase tracking-wide mb-1" style={{ color: 'rgba(255,255,255,0.35)' }}>Home</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wide mb-1" style={{ color: 'rgba(255,255,255,0.5)' }}>Home</p>
                   <p className="text-base font-black text-white leading-tight">{home}</p>
                 </div>
-                <span className="text-sm font-bold tracking-widest px-3" style={{ color: 'rgba(255,255,255,0.2)' }}>VS</span>
+                <span className="text-sm font-bold tracking-widest px-3" style={{ color: 'rgba(255,255,255,0.35)' }}>VS</span>
                 <div className="flex-1 text-left">
-                  <p className="text-[10px] font-bold uppercase tracking-wide mb-1" style={{ color: 'rgba(255,255,255,0.35)' }}>Away</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wide mb-1" style={{ color: 'rgba(255,255,255,0.5)' }}>Away</p>
                   <p className="text-base font-black text-white leading-tight">{away}</p>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Badges row */}
-          <div className="flex items-center gap-2">
-            {formation.formation_type && (
-              <div
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl"
-                style={{ background: 'rgba(96,165,250,0.1)', border: '1px solid rgba(96,165,250,0.2)' }}
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="#60a5fa" strokeWidth={2} style={{ width: 11, height: 11 }}>
-                  <rect x="2" y="3" width="20" height="18" rx="2" />
-                  <circle cx="12" cy="12" r="3" />
-                  <line x1="12" y1="3" x2="12" y2="9" /><line x1="12" y1="15" x2="12" y2="21" />
-                  <line x1="2" y1="12" x2="9" y2="12" /><line x1="15" y1="12" x2="22" y2="12" />
-                </svg>
-                <span className="text-[11px] font-bold" style={{ color: '#93c5fd' }}>
-                  {FORMAT_LABELS[11] ?? formation.formation_type}
-                </span>
-              </div>
-            )}
-          </div>
 
           {/* Notes */}
           {formation.notes && (
             <div
               className="mt-3 px-4 py-3 rounded-xl"
-              style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+              style={{
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(34,197,94,0.18)',
+                boxShadow: '0 0 20px rgba(34,197,94,0.05)',
+              }}
             >
-              <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'rgba(255,255,255,0.3)' }}>Notes</p>
-              <p className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.5)' }}>{formation.notes}</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'rgba(74,222,128,0.6)' }}>Notes</p>
+              <p className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.65)' }}>{formation.notes}</p>
             </div>
           )}
         </div>
@@ -253,7 +254,7 @@ export default function ShareFormation() {
                   <PlayerSlot
                     key={`h-${slot.key}`}
                     slot={{ ...slot, y: 50 - slot.y / 2 }}
-                    player={assignments[slot.key]}
+                    player={displayAssignments[slot.key]}
                     onClick={() => {}}
                     color="blue"
                     small
@@ -277,7 +278,7 @@ export default function ShareFormation() {
                 <PlayerSlot
                   key={slot.key}
                   slot={slot}
-                  player={assignments[slot.key]}
+                  player={displayAssignments[slot.key]}
                   onClick={() => {}}
                   color="blue"
                 />
@@ -293,7 +294,7 @@ export default function ShareFormation() {
               <div style={{ borderTop: '1px solid rgba(29,78,216,0.2)', marginTop: 2 }}>
                 <BenchSection
                   slots={ALL_BENCH}
-                  players={assignments}
+                  players={displayAssignments}
                   onSlotClick={() => {}}
                   color="blue"
                   label={`${formation.home_team_name || 'Home'} Bench`}
@@ -316,7 +317,7 @@ export default function ShareFormation() {
           hasBench && (
             <BenchSection
               slots={ALL_BENCH}
-              players={assignments}
+              players={displayAssignments}
               onSlotClick={() => {}}
               color="blue"
               label="Substitutes"
@@ -340,18 +341,19 @@ export default function ShareFormation() {
                 Plan formations & track results
               </p>
             </div>
-            <div
-              className="px-3 py-2 rounded-xl flex-shrink-0"
+            <a
+              href="https://build-kadro.netlify.app/signup"
+              className="px-3 py-2 rounded-xl flex-shrink-0 no-underline"
               style={{ background: 'rgba(34,197,94,0.18)', border: '1px solid rgba(34,197,94,0.3)' }}
             >
               <span className="text-xs font-black" style={{ color: '#4ade80' }}>Try KADRO</span>
-            </div>
+            </a>
           </div>
 
           {/* Copyright */}
           <div
             className="flex flex-col items-center gap-2 py-5"
-            style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
+            style={{ borderTop: '1px solid rgba(34,197,94,0.12)' }}
           >
             <div className="flex items-center gap-2">
               <svg viewBox="0 0 90 110" width={16} height={20} fill="none">
@@ -371,10 +373,10 @@ export default function ShareFormation() {
                 KADRO™
               </span>
             </div>
-            <p className="text-[10px] font-semibold" style={{ color: 'rgba(255,255,255,0.18)' }}>
+            <p className="text-[10px] font-semibold" style={{ color: 'rgba(255,255,255,0.32)' }}>
               The Football Formation Builder
             </p>
-            <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.15)', fontWeight: 500 }}>
+            <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.25)', fontWeight: 500 }}>
               © {new Date().getFullYear()} KADRO. All rights reserved.
             </p>
           </div>

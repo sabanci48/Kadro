@@ -66,7 +66,7 @@ export default function Profile() {
               key={label}
               className="flex flex-col items-center py-6 rounded-2xl"
               style={{
-                background: 'rgba(255,255,255,0.04)',
+                background: 'rgba(255,255,255,0.08)',
                 border: '1px solid rgba(34,197,94,0.1)',
               }}
             >
@@ -87,8 +87,8 @@ export default function Profile() {
               onClick={item.action}
               className="flex items-center gap-3 px-4 py-4 rounded-xl text-left transition-all active:scale-[0.98]"
               style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.06)',
+                background: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.11)',
               }}
             >
               <span className="text-xl">{item.emoji}</span>

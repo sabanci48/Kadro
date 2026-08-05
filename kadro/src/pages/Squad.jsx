@@ -83,8 +83,8 @@ export default function Squad() {
   const groups = groupPlayers(filtered)
 
   const inputStyle = {
-    background: '#1f2937',
-    border: '1.5px solid rgba(255,255,255,0.08)',
+    background: '#252f3d',
+    border: '1.5px solid rgba(255,255,255,0.15)',
   }
 
   return (
@@ -117,7 +117,7 @@ export default function Squad() {
             onChange={e => setSearch(e.target.value)}
             placeholder="Search players…"
             className="w-full pl-10 pr-4 py-3 rounded-xl text-white text-[15px] placeholder-gray-600 outline-none"
-            style={{ background: 'rgba(255,255,255,0.05)', border: '1.5px solid rgba(255,255,255,0.07)' }}
+            style={{ background: 'rgba(255,255,255,0.09)', border: '1.5px solid rgba(255,255,255,0.13)' }}
           />
         </div>
         <p className="text-xs text-gray-600 mt-2 px-1">{players.length} players in squad</p>
@@ -142,7 +142,7 @@ export default function Squad() {
             <div key={group}>
               <div className="flex items-center gap-2 mb-2.5">
                 <span className="text-[11px] font-bold text-gray-600 uppercase tracking-widest">{group}</span>
-                <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.05)' }} />
+                <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.09)' }} />
                 <span className="text-[10px] text-gray-700 font-semibold">{list.length}</span>
               </div>
               <div className="flex flex-col gap-1.5">
@@ -150,7 +150,7 @@ export default function Squad() {
                   <div
                     key={player.id}
                     className="flex items-center gap-3 px-4 py-3 rounded-xl"
-                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}
+                    style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.11)' }}
                   >
                     <div
                       className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0"
@@ -166,7 +166,7 @@ export default function Squad() {
                       <button
                         onClick={() => openEdit(player)}
                         className="w-9 h-9 rounded-lg flex items-center justify-center text-gray-500 hover:text-white transition-colors"
-                        style={{ background: 'rgba(255,255,255,0.05)' }}
+                        style={{ background: 'rgba(255,255,255,0.09)' }}
                       >
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
                           <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
@@ -176,7 +176,7 @@ export default function Squad() {
                       <button
                         onClick={() => handleDelete(player)}
                         className="w-9 h-9 rounded-lg flex items-center justify-center text-gray-500 hover:text-red-400 transition-colors"
-                        style={{ background: 'rgba(255,255,255,0.05)' }}
+                        style={{ background: 'rgba(255,255,255,0.09)' }}
                       >
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
                           <polyline points="3 6 5 6 21 6" />
@@ -242,7 +242,7 @@ export default function Squad() {
             <button
               onClick={() => setShowForm(false)}
               className="flex-1 py-4 rounded-xl font-bold text-sm text-gray-400"
-              style={{ background: 'rgba(255,255,255,0.05)' }}
+              style={{ background: 'rgba(255,255,255,0.09)' }}
             >
               Cancel
             </button>

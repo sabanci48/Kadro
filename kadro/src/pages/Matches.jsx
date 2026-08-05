@@ -41,7 +41,7 @@ export default function Matches() {
   return (
     <div className="flex flex-col min-h-dvh pb-24">
       <Header
-        title="Matches"
+        title="Saved Formations"
         showBack={false}
         right={
           <button
@@ -66,7 +66,7 @@ export default function Matches() {
               className="px-4 py-2 rounded-full text-xs font-bold transition-all flex-shrink-0"
               style={filter === key
                 ? { background: '#16a34a', color: 'white' }
-                : { background: 'rgba(255,255,255,0.06)', color: '#9ca3af' }}
+                : { background: 'rgba(255,255,255,0.11)', color: '#9ca3af' }}
             >
               {label}
             </button>
@@ -94,7 +94,7 @@ export default function Matches() {
               onClick={() => navigate(`/formation/${f.id}`)}
               className="flex items-center gap-3 px-4 py-4 rounded-xl text-left transition-all active:scale-[0.98]"
               style={{
-                background: 'rgba(255,255,255,0.04)',
+                background: 'rgba(255,255,255,0.08)',
                 border: '1px solid rgba(34,197,94,0.08)',
               }}
             >
@@ -147,7 +147,7 @@ export default function Matches() {
                 <button
                   onClick={e => handleDelete(f.id, e)}
                   className="w-9 h-9 rounded-lg flex items-center justify-center text-gray-600 hover:text-red-400 transition-colors"
-                  style={{ background: 'rgba(255,255,255,0.04)' }}
+                  style={{ background: 'rgba(255,255,255,0.08)' }}
                 >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
                     <polyline points="3 6 5 6 21 6" />
