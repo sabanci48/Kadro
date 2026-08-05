@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import Header from '../components/Layout/Header'
 import Footer from '../components/Layout/Footer'
+import { useTranslation } from '../i18n/LanguageContext'
 
 export default function Matches() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [formations, setFormations] = useState([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all')
@@ -26,7 +28,7 @@ export default function Matches() {
 
   async function handleDelete(id, e) {
     e.stopPropagation()
-    if (!confirm('Delete this formation?')) return
+    if (!confirm(t('delete_formation') + '?')) return
     await supabase.from('formation_slots').delete().eq('formation_id', id)
     await supabase.from('formations').delete().eq('id', id)
     setFormations(prev => prev.filter(f => f.id !== id))
@@ -38,10 +40,16 @@ export default function Matches() {
     return true
   })
 
+  const filters = [
+    ['all', t('all')],
+    ['with-date', t('scheduled')],
+    ['no-date', t('drafts')],
+  ]
+
   return (
     <div className="flex flex-col min-h-dvh pb-24">
       <Header
-        title="Saved Formations"
+        title={t('saved_formations')}
         showBack={false}
         right={
           <button
@@ -56,10 +64,9 @@ export default function Matches() {
         }
       />
 
-      {/* Filter pills — scrollable, no wrap */}
       <div className="overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
         <div className="flex gap-2 px-4 pt-3 pb-1" style={{ flexWrap: 'nowrap', minWidth: 'max-content' }}>
-          {[['all', 'All'], ['with-date', 'Scheduled'], ['no-date', 'Drafts']].map(([key, label]) => (
+          {filters.map(([key, label]) => (
             <button
               key={key}
               onClick={() => setFilter(key)}
@@ -82,9 +89,9 @@ export default function Matches() {
         ) : filtered.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-5xl mb-4">📋</div>
-            <p className="text-gray-500 text-sm">No formations yet</p>
+            <p className="text-gray-500 text-sm">{t('no_formations_yet')}</p>
             <button onClick={() => navigate('/formation/new')} className="mt-4 text-green-400 text-sm font-bold">
-              + Create your first formation
+              {t('create_first_formation')}
             </button>
           </div>
         ) : (
@@ -98,7 +105,6 @@ export default function Matches() {
                 border: '1px solid rgba(34,197,94,0.08)',
               }}
             >
-              {/* Formation type badge */}
               <div
                 className="flex-shrink-0 flex flex-col items-center justify-center rounded-xl"
                 style={{
@@ -119,7 +125,7 @@ export default function Matches() {
 
               <div className="flex-1 min-w-0">
                 <div className="text-[14px] font-semibold text-white truncate">
-                  {f.name || 'Untitled Formation'}
+                  {f.name || t('untitled_formation')}
                 </div>
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
                   {f.match_date && (
@@ -138,7 +144,7 @@ export default function Matches() {
                     </span>
                   )}
                   {!f.match_date && (
-                    <span className="text-xs text-gray-700 italic">Draft</span>
+                    <span className="text-xs text-gray-700 italic">{t('draft')}</span>
                   )}
                 </div>
               </div>

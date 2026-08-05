@@ -2,14 +2,15 @@ import { useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { POSITION_LABELS } from '../../lib/formations'
 import BottomSheet from '../Layout/BottomSheet'
+import { useTranslation } from '../../i18n/LanguageContext'
 
 const POSITIONS = ['GK', 'CB', 'LB', 'RB', 'LWB', 'RWB', 'CDM', 'CM', 'CAM', 'LM', 'RM', 'LW', 'RW', 'ST']
 
 const POSITION_GROUPS = {
-  Goalkeepers: ['GK'],
-  Defenders:   ['CB', 'LB', 'RB', 'LWB', 'RWB'],
-  Midfielders: ['CDM', 'CM', 'CAM', 'LM', 'RM'],
-  Forwards:    ['LW', 'RW', 'ST'],
+  goalkeepers: ['GK'],
+  defenders:   ['CB', 'LB', 'RB', 'LWB', 'RWB'],
+  midfielders: ['CDM', 'CM', 'CAM', 'LM', 'RM'],
+  forwards:    ['LW', 'RW', 'ST'],
 }
 
 function groupPlayers(players) {
@@ -19,11 +20,12 @@ function groupPlayers(players) {
     if (list.length > 0) groups[group] = list
   })
   const ungrouped = players.filter(p => !Object.values(POSITION_GROUPS).flat().includes(p.position))
-  if (ungrouped.length > 0) groups['Other'] = ungrouped
+  if (ungrouped.length > 0) groups['other'] = ungrouped
   return groups
 }
 
 export default function PlayerPickerModal({ slot, players, onSelect, onRemove, onClose, onPlayerAdded }) {
+  const { t } = useTranslation()
   const [search, setSearch] = useState('')
   const [adding, setAdding] = useState(false)
   const [newName, setNewName] = useState('')
@@ -76,18 +78,18 @@ export default function PlayerPickerModal({ slot, players, onSelect, onRemove, o
                 <path d="M15 18l-6-6 6-6" strokeLinecap="round" />
               </svg>
             </button>
-            <h2 className="text-base font-bold text-white">Add New Player</h2>
+            <h2 className="text-base font-bold text-white">{t('add_new_player')}</h2>
           </div>
 
           <div className="mb-3">
             <label className="block text-[11px] font-bold uppercase tracking-widest mb-1.5" style={{ color: 'rgba(74,222,128,0.6)' }}>
-              Full Name
+              {t('full_name')}
             </label>
             <input
               autoFocus
               value={newName}
               onChange={e => setNewName(e.target.value)}
-              placeholder="e.g. John Smith"
+              placeholder={t('name_example')}
               className="w-full px-4 py-3.5 rounded-xl text-white text-[15px] placeholder-gray-600 outline-none"
               style={{ background: 'rgba(255,255,255,0.07)', border: '1.5px solid rgba(34,197,94,0.2)' }}
             />
@@ -95,13 +97,13 @@ export default function PlayerPickerModal({ slot, players, onSelect, onRemove, o
 
           <div className="mb-3">
             <label className="block text-[11px] font-bold uppercase tracking-widest mb-1.5" style={{ color: 'rgba(74,222,128,0.6)' }}>
-              Jersey Number
+              {t('jersey_number')}
             </label>
             <input
               type="number"
               value={newNumber}
               onChange={e => setNewNumber(e.target.value)}
-              placeholder="e.g. 10"
+              placeholder={t('number_example')}
               min={1}
               max={99}
               className="w-full px-4 py-3.5 rounded-xl text-white text-[15px] placeholder-gray-600 outline-none"
@@ -111,7 +113,7 @@ export default function PlayerPickerModal({ slot, players, onSelect, onRemove, o
 
           <div className="mb-5">
             <label className="block text-[11px] font-bold uppercase tracking-widest mb-2" style={{ color: 'rgba(74,222,128,0.6)' }}>
-              Position
+              {t('position')}
             </label>
             <div className="flex flex-wrap gap-2">
               {POSITIONS.map(pos => (
@@ -138,7 +140,7 @@ export default function PlayerPickerModal({ slot, players, onSelect, onRemove, o
             className="w-full py-4 rounded-xl font-bold text-[15px] text-white transition-all active:scale-[0.98] disabled:opacity-40"
             style={{ background: 'linear-gradient(135deg, #16a34a, #15803d)', boxShadow: '0 0 24px rgba(34,197,94,0.2)' }}
           >
-            {saving ? 'Saving…' : 'Save & Select'}
+            {saving ? '…' : t('save_and_select')}
           </button>
         </div>
       </BottomSheet>
@@ -149,10 +151,9 @@ export default function PlayerPickerModal({ slot, players, onSelect, onRemove, o
   return (
     <BottomSheet onClose={onClose}>
       <div className="px-5 pt-4 pb-2">
-        {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-base font-bold text-white">
-            Select Player{label ? <> — <span style={{ color: '#4ade80' }}>{label}</span></> : ''}
+            {t('select_player')}{label ? <> — <span style={{ color: '#4ade80' }}>{label}</span></> : ''}
           </h2>
           {onRemove && (
             <button
@@ -160,12 +161,11 @@ export default function PlayerPickerModal({ slot, players, onSelect, onRemove, o
               className="text-xs font-bold text-red-400 px-3 py-1.5 rounded-lg"
               style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}
             >
-              Remove
+              {t('remove')}
             </button>
           )}
         </div>
 
-        {/* Search */}
         <div className="relative mb-4">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
                className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2"
@@ -175,36 +175,33 @@ export default function PlayerPickerModal({ slot, players, onSelect, onRemove, o
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search by name or number…"
+            placeholder={t('search_by_name')}
             className="w-full pl-10 pr-4 py-3.5 rounded-xl text-white text-[15px] placeholder-gray-600 outline-none"
             style={{ background: 'rgba(255,255,255,0.06)', border: '1.5px solid rgba(34,197,94,0.18)' }}
           />
         </div>
 
-        {/* Player list */}
         <div className="overflow-y-auto" style={{ maxHeight: '42vh' }}>
           {filtered.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-sm font-semibold" style={{ color: 'rgba(255,255,255,0.4)' }}>No players found</p>
-              <p className="text-xs mt-1" style={{ color: 'rgba(255,255,255,0.2)' }}>Add one below</p>
+              <p className="text-sm font-semibold" style={{ color: 'rgba(255,255,255,0.4)' }}>{t('no_players_found')}</p>
+              <p className="text-xs mt-1" style={{ color: 'rgba(255,255,255,0.2)' }}>{t('add_one_below')}</p>
             </div>
           ) : (
             <div className="flex flex-col gap-4">
               {Object.entries(groups).map(([group, list]) => (
                 <div key={group}>
-                  {/* Category header */}
                   <div className="flex items-center gap-2 mb-2">
                     <span
                       className="text-[10px] font-bold uppercase tracking-widest"
                       style={{ color: 'rgba(74,222,128,0.55)' }}
                     >
-                      {group}
+                      {t(group)}
                     </span>
                     <div className="flex-1 h-px" style={{ background: 'rgba(34,197,94,0.15)' }} />
                     <span className="text-[10px] font-semibold" style={{ color: 'rgba(255,255,255,0.2)' }}>{list.length}</span>
                   </div>
 
-                  {/* Players in category */}
                   <div className="flex flex-col gap-1.5">
                     {list.map(player => (
                       <button
@@ -238,7 +235,6 @@ export default function PlayerPickerModal({ slot, players, onSelect, onRemove, o
         </div>
       </div>
 
-      {/* Add player button */}
       <div className="px-5 pt-3 pb-5">
         <button
           onClick={() => { setAdding(true); setSearch('') }}
@@ -252,7 +248,7 @@ export default function PlayerPickerModal({ slot, players, onSelect, onRemove, o
           <svg viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth={2.5} style={{ width: 16, height: 16 }}>
             <path d="M12 5v14M5 12h14" strokeLinecap="round" />
           </svg>
-          Add New Player
+          {t('add_new_player')}
         </button>
       </div>
     </BottomSheet>

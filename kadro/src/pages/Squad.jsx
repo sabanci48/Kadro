@@ -3,14 +3,15 @@ import { supabase } from '../lib/supabaseClient'
 import Header from '../components/Layout/Header'
 import BottomSheet from '../components/Layout/BottomSheet'
 import Footer from '../components/Layout/Footer'
+import { useTranslation } from '../i18n/LanguageContext'
 
 const POSITIONS = ['GK', 'CB', 'LB', 'RB', 'CDM', 'CM', 'CAM', 'LM', 'RM', 'LW', 'RW', 'ST']
 
 const POSITION_GROUPS = {
-  Goalkeepers: ['GK'],
-  Defenders:   ['CB', 'LB', 'RB'],
-  Midfielders: ['CDM', 'CM', 'CAM', 'LM', 'RM'],
-  Forwards:    ['LW', 'RW', 'ST'],
+  goalkeepers: ['GK'],
+  defenders:   ['CB', 'LB', 'RB'],
+  midfielders: ['CDM', 'CM', 'CAM', 'LM', 'RM'],
+  forwards:    ['LW', 'RW', 'ST'],
 }
 
 function groupPlayers(players) {
@@ -23,6 +24,7 @@ function groupPlayers(players) {
 }
 
 export default function Squad() {
+  const { t } = useTranslation()
   const [players, setPlayers] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -71,7 +73,7 @@ export default function Squad() {
   }
 
   async function handleDelete(player) {
-    if (!confirm(`Remove ${player.name}?`)) return
+    if (!confirm(`${t('confirm_remove')} ${player.name}?`)) return
     await supabase.from('players').delete().eq('id', player.id)
     setPlayers(prev => prev.filter(p => p.id !== player.id))
   }
@@ -90,7 +92,7 @@ export default function Squad() {
   return (
     <div className="flex flex-col min-h-dvh pb-24">
       <Header
-        title="Squad"
+        title={t('squad')}
         showBack={false}
         right={
           <button
@@ -105,7 +107,6 @@ export default function Squad() {
         }
       />
 
-      {/* Search */}
       <div className="px-4 pt-4 pb-2">
         <div className="relative">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
@@ -115,15 +116,14 @@ export default function Squad() {
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search players…"
+            placeholder={t('search_players')}
             className="w-full pl-10 pr-4 py-3 rounded-xl text-white text-[15px] placeholder-gray-600 outline-none"
             style={{ background: 'rgba(255,255,255,0.09)', border: '1.5px solid rgba(255,255,255,0.13)' }}
           />
         </div>
-        <p className="text-xs text-gray-600 mt-2 px-1">{players.length} players in squad</p>
+        <p className="text-xs text-gray-600 mt-2 px-1">{players.length} {t('players_in_squad')}</p>
       </div>
 
-      {/* List */}
       <div className="px-4 flex flex-col gap-5">
         {loading ? (
           <div className="flex justify-center py-12">
@@ -132,16 +132,16 @@ export default function Squad() {
         ) : filtered.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-5xl mb-4">⚽</div>
-            <p className="text-gray-500 text-sm">No players yet</p>
+            <p className="text-gray-500 text-sm">{t('no_players_yet')}</p>
             <button onClick={openAdd} className="mt-4 text-green-400 text-sm font-bold">
-              + Add your first player
+              {t('add_first_player')}
             </button>
           </div>
         ) : (
           Object.entries(groups).map(([group, list]) => (
             <div key={group}>
               <div className="flex items-center gap-2 mb-2.5">
-                <span className="text-[11px] font-bold text-gray-600 uppercase tracking-widest">{group}</span>
+                <span className="text-[11px] font-bold text-gray-600 uppercase tracking-widest">{t(group)}</span>
                 <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.09)' }} />
                 <span className="text-[10px] text-gray-700 font-semibold">{list.length}</span>
               </div>
@@ -194,26 +194,25 @@ export default function Squad() {
 
       <Footer />
 
-      {/* Add/Edit bottom sheet */}
       {showForm && (
         <BottomSheet onClose={() => setShowForm(false)}>
-          <div className="px-5 pt-1 pb-2 flex flex-col gap-3">
+          <div className="px-5 pt-4 pb-2 flex flex-col gap-3">
             <h3 className="text-base font-bold text-white">
-              {editPlayer ? 'Edit Player' : 'Add Player'}
+              {editPlayer ? t('edit_player') : t('add_player')}
             </h3>
             <div>
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">Full Name</label>
+              <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">{t('full_name')}</label>
               <input
                 value={form.name}
                 onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
-                placeholder="Player name"
+                placeholder={t('name_placeholder')}
                 className="w-full px-4 py-3.5 rounded-xl text-white text-[15px] outline-none"
                 style={inputStyle}
               />
             </div>
             <div className="flex gap-3">
               <div className="flex-1">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">Jersey #</label>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">{t('jersey_number')}</label>
                 <input
                   type="number" min="1" max="99"
                   value={form.jersey_number}
@@ -224,7 +223,7 @@ export default function Squad() {
                 />
               </div>
               <div className="flex-1">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">Position</label>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">{t('position')}</label>
                 <select
                   value={form.position}
                   onChange={e => setForm(p => ({ ...p, position: e.target.value }))}
@@ -244,7 +243,7 @@ export default function Squad() {
               className="flex-1 py-4 rounded-xl font-bold text-sm text-gray-400"
               style={{ background: 'rgba(255,255,255,0.09)' }}
             >
-              Cancel
+              {t('cancel')}
             </button>
             <button
               onClick={handleSave}
@@ -252,7 +251,7 @@ export default function Squad() {
               className="flex-1 py-4 rounded-xl font-bold text-sm text-white disabled:opacity-40"
               style={{ background: 'linear-gradient(135deg, #16a34a, #15803d)' }}
             >
-              {saving ? '…' : 'Save'}
+              {saving ? '…' : t('save')}
             </button>
           </div>
         </BottomSheet>

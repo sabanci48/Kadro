@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import Footer from '../components/Layout/Footer'
+import { useTranslation } from '../i18n/LanguageContext'
 
 function PitchLogo({ size = 88 }) {
   const h = Math.round(size * 110 / 90)
@@ -39,14 +40,41 @@ function PitchLogo({ size = 88 }) {
   )
 }
 
+function LangToggle() {
+  const { lang, setLang } = useTranslation()
+  return (
+    <div
+      className="flex items-center rounded-lg overflow-hidden absolute top-4 right-4"
+      style={{ border: '1px solid rgba(255,255,255,0.13)', zIndex: 10 }}
+    >
+      {['TR', 'EN'].map(l => (
+        <button
+          key={l}
+          onClick={() => setLang(l.toLowerCase())}
+          className="px-2.5 py-1 text-[10px] font-bold transition-all"
+          style={{
+            background: lang === l.toLowerCase() ? 'rgba(34,197,94,0.18)' : 'transparent',
+            color: lang === l.toLowerCase() ? '#4ade80' : '#6b7280',
+          }}
+        >
+          {l}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 export default function Signup() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [resending, setResending] = useState(false)
+  const [resent, setResent] = useState(false)
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -55,11 +83,22 @@ export default function Signup() {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: name } },
+      options: {
+        data: { full_name: name },
+        emailRedirectTo: 'https://build-kadro.netlify.app/login',
+      },
     })
     if (error) setError(error.message)
     else setSuccess(true)
     setLoading(false)
+  }
+
+  async function handleResend() {
+    setResending(true)
+    await supabase.auth.resend({ type: 'signup', email, options: { emailRedirectTo: 'https://build-kadro.netlify.app/login' } })
+    setResending(false)
+    setResent(true)
+    setTimeout(() => setResent(false), 4000)
   }
 
   if (success) {
@@ -68,6 +107,7 @@ export default function Signup() {
         className="flex flex-col min-h-dvh items-center justify-center px-6"
         style={{ background: '#0d0d0d', paddingTop: 'env(safe-area-inset-top, 0px)' }}
       >
+        <LangToggle />
         <div className="text-center">
           <div
             className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
@@ -77,12 +117,20 @@ export default function Signup() {
               <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <h2 className="text-xl font-bold text-white mb-2">Check your email</h2>
+          <h2 className="text-xl font-bold text-white mb-2">{t('check_your_email')}</h2>
           <p className="text-gray-500 text-sm mb-6">
-            Confirmation link sent to<br />
+            {t('confirmation_sent')}<br />
             <span className="text-green-400 font-semibold">{email}</span>
           </p>
-          <Link to="/login" className="text-green-400 font-bold text-sm">← Back to login</Link>
+          <button
+            onClick={handleResend}
+            disabled={resending || resent}
+            className="text-sm text-gray-500 mb-4 disabled:opacity-50"
+          >
+            {resent ? t('email_resent') : resending ? t('sending') : t('didnt_receive')}
+          </button>
+          <br />
+          <Link to="/login" className="text-green-400 font-bold text-sm">{t('back_to_login')}</Link>
         </div>
       </div>
     )
@@ -90,44 +138,41 @@ export default function Signup() {
 
   return (
     <div
-      className="flex flex-col min-h-dvh"
+      className="relative flex flex-col min-h-dvh"
       style={{
         background: 'linear-gradient(180deg, #050505 0%, #0d0d0d 100%)',
         paddingTop: 'env(safe-area-inset-top, 0px)',
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
       }}
     >
+      <LangToggle />
+
       <div
         className="absolute pointer-events-none"
         style={{
-          top: 0,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '300px',
-          height: '300px',
+          top: 0, left: '50%', transform: 'translateX(-50%)',
+          width: '300px', height: '300px',
           background: 'radial-gradient(circle, rgba(74,222,128,0.12) 0%, transparent 70%)',
         }}
       />
 
       <div className="flex-1 flex flex-col justify-center px-6" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
         <div className="flex flex-col items-center mb-10">
-          <div className="mb-5">
-            <PitchLogo size={88} />
-          </div>
+          <div className="mb-5"><PitchLogo size={88} /></div>
           <h1
             className="text-5xl font-black text-white"
             style={{ letterSpacing: '0.25em', textShadow: '0 0 40px rgba(74,222,128,0.35)' }}
           >
             KADRO
           </h1>
-          <p className="text-sm mt-2 tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.45)' }}>Create your account</p>
+          <p className="text-sm mt-2 tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.45)' }}>{t('create_your_account')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {[
-            { label: 'Full Name', type: 'text', value: name, onChange: setName, placeholder: 'Your name' },
-            { label: 'Email', type: 'email', value: email, onChange: setEmail, placeholder: 'you@example.com' },
-            { label: 'Password', type: 'password', value: password, onChange: setPassword, placeholder: 'Min. 6 characters', minLength: 6 },
+            { label: t('full_name'), type: 'text', value: name, onChange: setName, placeholder: t('name_placeholder') },
+            { label: t('email'), type: 'email', value: email, onChange: setEmail, placeholder: 'you@example.com' },
+            { label: t('password'), type: 'password', value: password, onChange: setPassword, placeholder: t('password_placeholder'), minLength: 6 },
           ].map(({ label, ...props }) => (
             <div key={label}>
               <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">{label}</label>
@@ -151,18 +196,17 @@ export default function Signup() {
           )}
 
           <button
-            type="submit"
-            disabled={loading}
+            type="submit" disabled={loading}
             className="w-full py-4 rounded-xl font-bold text-[15px] tracking-widest uppercase transition-all active:scale-95 disabled:opacity-50 mt-2"
             style={{ background: 'linear-gradient(135deg, #16a34a, #15803d)', boxShadow: '0 0 30px rgba(74,222,128,0.25)' }}
           >
-            {loading ? 'Creating…' : 'Create Account'}
+            {loading ? t('creating') : t('create_account')}
           </button>
         </form>
 
         <p className="text-center text-sm text-gray-700 mt-8">
-          Already have an account?{' '}
-          <Link to="/login" className="text-green-400 font-bold hover:text-green-300">Sign In</Link>
+          {t('already_have_account')}{' '}
+          <Link to="/login" className="text-green-400 font-bold hover:text-green-300">{t('sign_in')}</Link>
         </p>
         <Footer />
       </div>

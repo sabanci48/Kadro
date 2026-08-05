@@ -5,22 +5,24 @@ import FORMATIONS, { MATCH_FORMATS, FORMAT_LABELS } from '../lib/formations'
 import Pitch from '../components/Pitch/Pitch'
 import PlayerSlot from '../components/Pitch/PlayerSlot'
 import BenchSection from '../components/Pitch/BenchSection'
+import { useTranslation } from '../i18n/LanguageContext'
 
-const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
-const WEEKDAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
-
-function formatDate(dateStr) {
-  if (!dateStr) return null
-  const d = new Date(dateStr + 'T00:00:00')
-  return `${WEEKDAYS[d.getDay()]}, ${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`
-}
+const WEEKDAY_KEYS = ['weekday_sun','weekday_mon','weekday_tue','weekday_wed','weekday_thu','weekday_fri','weekday_sat']
+const MONTH_KEYS = ['month_jan','month_feb','month_mar','month_apr','month_may','month_jun','month_jul','month_aug','month_sep','month_oct','month_nov','month_dec']
 
 const ALL_BENCH = Array.from({ length: 7 }, (_, i) => ({ key: `SUB${i + 1}` }))
 
 export default function ShareFormation() {
+  const { t } = useTranslation()
   const { id } = useParams()
   const [searchParams] = useSearchParams()
   const viewParam = searchParams.get('view') // 'single' | 'match' | null
+
+  function formatDate(dateStr) {
+    if (!dateStr) return null
+    const d = new Date(dateStr + 'T00:00:00')
+    return `${t(WEEKDAY_KEYS[d.getDay()])}, ${t(MONTH_KEYS[d.getMonth()])} ${d.getDate()}, ${d.getFullYear()}`
+  }
 
   const [formation, setFormation] = useState(null)
   const [singleAssignments, setSingleAssignments] = useState({})
@@ -80,9 +82,9 @@ export default function ShareFormation() {
           <circle cx="45" cy="55" r="13" stroke="#4ade80" strokeWidth={2.2} />
           <circle cx="45" cy="55" r="3" fill="#4ade80" />
         </svg>
-        <p className="text-white font-black text-xl">Formation not found</p>
+        <p className="text-white font-black text-xl">{t('formation_not_found')}</p>
         <p className="text-sm" style={{ color: 'rgba(255,255,255,0.35)' }}>
-          This lineup is private or doesn't exist
+          {t('formation_private')}
         </p>
       </div>
     )
@@ -136,7 +138,7 @@ export default function ShareFormation() {
           className="text-[10px] font-bold uppercase tracking-widest"
           style={{ color: 'rgba(255,255,255,0.4)' }}
         >
-          Lineup Card
+          {t('lineup_card')}
         </span>
       </header>
 
@@ -172,7 +174,7 @@ export default function ShareFormation() {
             {hasResult ? (
               <div className="flex items-center justify-between gap-3">
                 <div className="flex-1 text-right">
-                  <p className="text-[10px] font-bold uppercase tracking-wide mb-1" style={{ color: 'rgba(255,255,255,0.5)' }}>Home</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wide mb-1" style={{ color: 'rgba(255,255,255,0.5)' }}>{t('home')}</p>
                   <p className="text-base font-black text-white leading-tight">{home}</p>
                 </div>
                 <div
@@ -184,19 +186,19 @@ export default function ShareFormation() {
                   <span className="text-2xl font-black text-white" style={{ minWidth: 24, textAlign: 'center' }}>{awayScore}</span>
                 </div>
                 <div className="flex-1 text-left">
-                  <p className="text-[10px] font-bold uppercase tracking-wide mb-1" style={{ color: 'rgba(255,255,255,0.5)' }}>Away</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wide mb-1" style={{ color: 'rgba(255,255,255,0.5)' }}>{t('away')}</p>
                   <p className="text-base font-black text-white leading-tight">{away}</p>
                 </div>
               </div>
             ) : (
               <div className="flex items-center justify-between gap-3">
                 <div className="flex-1 text-right">
-                  <p className="text-[10px] font-bold uppercase tracking-wide mb-1" style={{ color: 'rgba(255,255,255,0.5)' }}>Home</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wide mb-1" style={{ color: 'rgba(255,255,255,0.5)' }}>{t('home')}</p>
                   <p className="text-base font-black text-white leading-tight">{home}</p>
                 </div>
-                <span className="text-sm font-bold tracking-widest px-3" style={{ color: 'rgba(255,255,255,0.35)' }}>VS</span>
+                <span className="text-sm font-bold tracking-widest px-3" style={{ color: 'rgba(255,255,255,0.35)' }}>{t('vs')}</span>
                 <div className="flex-1 text-left">
-                  <p className="text-[10px] font-bold uppercase tracking-wide mb-1" style={{ color: 'rgba(255,255,255,0.5)' }}>Away</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wide mb-1" style={{ color: 'rgba(255,255,255,0.5)' }}>{t('away')}</p>
                   <p className="text-base font-black text-white leading-tight">{away}</p>
                 </div>
               </div>
@@ -214,7 +216,7 @@ export default function ShareFormation() {
                 boxShadow: '0 0 20px rgba(34,197,94,0.05)',
               }}
             >
-              <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'rgba(74,222,128,0.6)' }}>Notes</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'rgba(74,222,128,0.6)' }}>{t('notes')}</p>
               <p className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.65)' }}>{formation.notes}</p>
             </div>
           )}
@@ -297,7 +299,7 @@ export default function ShareFormation() {
                   players={displayAssignments}
                   onSlotClick={() => {}}
                   color="blue"
-                  label={`${formation.home_team_name || 'Home'} Bench`}
+                  label={`${formation.home_team_name || t('home')} ${t('bench_label')}`}
                 />
               </div>
             )}
@@ -308,7 +310,7 @@ export default function ShareFormation() {
                   players={awayAssignments}
                   onSlotClick={() => {}}
                   color="red"
-                  label={`${formation.away_team_name || 'Away'} Bench`}
+                  label={`${formation.away_team_name || t('away')} ${t('bench_label')}`}
                 />
               </div>
             )}
@@ -320,7 +322,7 @@ export default function ShareFormation() {
               players={displayAssignments}
               onSlotClick={() => {}}
               color="blue"
-              label="Substitutes"
+              label={t('substitutes')}
             />
           )
         )}
@@ -336,9 +338,9 @@ export default function ShareFormation() {
             }}
           >
             <div>
-              <p className="text-sm font-black text-white">Build your own lineup</p>
+              <p className="text-sm font-black text-white">{t('build_your_lineup')}</p>
               <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.35)' }}>
-                Plan formations & track results
+                {t('plan_track')}
               </p>
             </div>
             <a
@@ -346,7 +348,7 @@ export default function ShareFormation() {
               className="px-3 py-2 rounded-xl flex-shrink-0 no-underline"
               style={{ background: 'rgba(34,197,94,0.18)', border: '1px solid rgba(34,197,94,0.3)' }}
             >
-              <span className="text-xs font-black" style={{ color: '#4ade80' }}>Try KADRO</span>
+              <span className="text-xs font-black" style={{ color: '#4ade80' }}>{t('try_kadro')}</span>
             </a>
           </div>
 
@@ -374,7 +376,7 @@ export default function ShareFormation() {
               </span>
             </div>
             <p className="text-[10px] font-semibold" style={{ color: 'rgba(255,255,255,0.32)' }}>
-              The Football Formation Builder
+              {t('football_builder')}
             </p>
             <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.25)', fontWeight: 500 }}>
               © {new Date().getFullYear()} KADRO. All rights reserved.

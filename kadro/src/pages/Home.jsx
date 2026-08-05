@@ -2,12 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import Footer from '../components/Layout/Footer'
-
-const DAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
-const MONTHS = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
-]
+import { useTranslation } from '../i18n/LanguageContext'
 
 function PitchIcon({ size = 26 }) {
   const s = 2.2
@@ -27,16 +22,42 @@ function PitchIcon({ size = 26 }) {
   )
 }
 
-const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-
-function formatDate(dateStr) {
-  const d = new Date(dateStr + 'T00:00:00')
-  return `${WEEKDAYS[d.getDay()]}, ${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`
+function LangToggle() {
+  const { lang, setLang } = useTranslation()
+  return (
+    <div
+      className="flex items-center rounded-lg overflow-hidden"
+      style={{ border: '1px solid rgba(255,255,255,0.13)' }}
+    >
+      {['TR', 'EN'].map(l => (
+        <button
+          key={l}
+          onClick={() => setLang(l.toLowerCase())}
+          className="px-2.5 py-1 text-[10px] font-bold transition-all"
+          style={{
+            background: lang === l.toLowerCase() ? 'rgba(34,197,94,0.18)' : 'transparent',
+            color: lang === l.toLowerCase() ? '#4ade80' : '#6b7280',
+          }}
+        >
+          {l}
+        </button>
+      ))}
+    </div>
+  )
 }
 
 function MatchModal({ formation, onClose, onOpen, onDelete }) {
-  const home = formation.home_team_name || 'Home'
-  const away = formation.away_team_name || 'Away'
+  const { t } = useTranslation()
+  const WEEKDAY_KEYS = ['weekday_sun','weekday_mon','weekday_tue','weekday_wed','weekday_thu','weekday_fri','weekday_sat']
+  const MONTH_KEYS = ['month_jan','month_feb','month_mar','month_apr','month_may','month_jun','month_jul','month_aug','month_sep','month_oct','month_nov','month_dec']
+
+  function formatDate(dateStr) {
+    const d = new Date(dateStr + 'T00:00:00')
+    return `${t(WEEKDAY_KEYS[d.getDay()])}, ${t(MONTH_KEYS[d.getMonth()])} ${d.getDate()}, ${d.getFullYear()}`
+  }
+
+  const home = formation.home_team_name || t('home')
+  const away = formation.away_team_name || t('away')
   const hasResult = !!formation.result
   const [homeScore, awayScore] = hasResult ? formation.result.split('-').map(s => s.trim()) : [null, null]
   const [confirming, setConfirming] = useState(false)
@@ -57,10 +78,8 @@ function MatchModal({ formation, onClose, onOpen, onDelete }) {
         }}
         onClick={e => e.stopPropagation()}
       >
-        {/* Top accent bar */}
         <div style={{ height: 3, background: 'linear-gradient(90deg, #16a34a, #4ade80, #16a34a)' }} />
 
-        {/* Header row */}
         <div className="flex items-center justify-between px-5 pt-4 pb-3">
           <span
             className="text-[10px] font-bold uppercase tracking-widest"
@@ -79,16 +98,14 @@ function MatchModal({ formation, onClose, onOpen, onDelete }) {
           </button>
         </div>
 
-        {/* Score card */}
         <div
           className="mx-4 mb-4 rounded-2xl px-4 py-5"
           style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.13)' }}
         >
           {hasResult ? (
-            /* Match with result */
             <div className="flex items-center justify-between gap-3">
               <div className="flex-1 text-right">
-                <p className="text-[11px] font-bold uppercase tracking-wide mb-1" style={{ color: 'rgba(255,255,255,0.4)' }}>Home</p>
+                <p className="text-[11px] font-bold uppercase tracking-wide mb-1" style={{ color: 'rgba(255,255,255,0.4)' }}>{t('home')}</p>
                 <p className="text-sm font-black text-white leading-tight">{home}</p>
               </div>
               <div className="flex items-center gap-2 px-3 py-2 rounded-2xl" style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.25)' }}>
@@ -97,29 +114,27 @@ function MatchModal({ formation, onClose, onOpen, onDelete }) {
                 <span className="text-3xl font-black text-white" style={{ minWidth: 28, textAlign: 'center' }}>{awayScore}</span>
               </div>
               <div className="flex-1 text-left">
-                <p className="text-[11px] font-bold uppercase tracking-wide mb-1" style={{ color: 'rgba(255,255,255,0.4)' }}>Away</p>
+                <p className="text-[11px] font-bold uppercase tracking-wide mb-1" style={{ color: 'rgba(255,255,255,0.4)' }}>{t('away')}</p>
                 <p className="text-sm font-black text-white leading-tight">{away}</p>
               </div>
             </div>
           ) : (
-            /* Formation only, no result */
             <div className="flex items-center justify-between gap-3">
               <div className="flex-1 text-right">
-                <p className="text-[11px] font-bold uppercase tracking-wide mb-1" style={{ color: 'rgba(255,255,255,0.4)' }}>Home</p>
+                <p className="text-[11px] font-bold uppercase tracking-wide mb-1" style={{ color: 'rgba(255,255,255,0.4)' }}>{t('home')}</p>
                 <p className="text-sm font-black text-white leading-tight">{home}</p>
               </div>
               <div className="flex flex-col items-center px-3">
-                <span className="text-xs font-bold tracking-widest" style={{ color: 'rgba(255,255,255,0.32)' }}>VS</span>
+                <span className="text-xs font-bold tracking-widest" style={{ color: 'rgba(255,255,255,0.32)' }}>{t('vs')}</span>
               </div>
               <div className="flex-1 text-left">
-                <p className="text-[11px] font-bold uppercase tracking-wide mb-1" style={{ color: 'rgba(255,255,255,0.4)' }}>Away</p>
+                <p className="text-[11px] font-bold uppercase tracking-wide mb-1" style={{ color: 'rgba(255,255,255,0.4)' }}>{t('away')}</p>
                 <p className="text-sm font-black text-white leading-tight">{away}</p>
               </div>
             </div>
           )}
         </div>
 
-        {/* Meta row */}
         <div className="flex items-center gap-2 px-5 mb-4">
           {formation.formation_type && (
             <div
@@ -145,22 +160,20 @@ function MatchModal({ formation, onClose, onOpen, onDelete }) {
           )}
         </div>
 
-        {/* Notes */}
         {formation.notes && (
           <div className="mx-4 mb-4 px-4 py-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.11)', border: '1px solid rgba(255,255,255,0.11)' }}>
-            <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'rgba(255,255,255,0.45)' }}>Notes</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'rgba(255,255,255,0.45)' }}>{t('notes')}</p>
             <p className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.55)' }}>{formation.notes}</p>
           </div>
         )}
 
-        {/* Action buttons */}
         <div className="px-4 pb-5 flex flex-col gap-2">
           <button
             onClick={onOpen}
             className="w-full py-4 rounded-2xl font-bold text-[15px] tracking-wide flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
             style={{ background: 'linear-gradient(135deg, #16a34a, #15803d)', boxShadow: '0 0 24px rgba(34,197,94,0.25)' }}
           >
-            <span>View Formation</span>
+            <span>{t('view_formation')}</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2.5} style={{ width: 16, height: 16 }}>
               <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -175,7 +188,7 @@ function MatchModal({ formation, onClose, onOpen, onDelete }) {
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: 14, height: 14 }}>
                 <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" /><path d="M10 11v6M14 11v6" /><path d="M9 6V4h6v2" />
               </svg>
-              Delete Formation
+              {t('delete_formation')}
             </button>
           ) : (
             <div className="flex gap-2">
@@ -184,14 +197,14 @@ function MatchModal({ formation, onClose, onOpen, onDelete }) {
                 className="flex-1 py-3 rounded-2xl font-bold text-sm transition-all active:scale-[0.98]"
                 style={{ background: 'rgba(255,255,255,0.11)', border: '1px solid rgba(255,255,255,0.18)', color: '#9ca3af' }}
               >
-                Cancel
+                {t('cancel')}
               </button>
               <button
                 onClick={onDelete}
                 className="flex-1 py-3 rounded-2xl font-bold text-sm transition-all active:scale-[0.98]"
                 style={{ background: 'rgba(239,68,68,0.18)', border: '1px solid rgba(239,68,68,0.35)', color: '#f87171' }}
               >
-                Yes, Delete
+                {t('yes_delete')}
               </button>
             </div>
           )}
@@ -203,10 +216,14 @@ function MatchModal({ formation, onClose, onOpen, onDelete }) {
 
 export default function Home() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
+  const DAYS_KEYS = ['day_sun','day_mon','day_tue','day_wed','day_thu','day_fri','day_sat']
+  const MONTH_KEYS = ['month_jan','month_feb','month_mar','month_apr','month_may','month_jun','month_jul','month_aug','month_sep','month_oct','month_nov','month_dec']
+
   const today = new Date()
   const [current, setCurrent] = useState({ year: today.getFullYear(), month: today.getMonth() })
   const [formations, setFormations] = useState([])
-  const [selected, setSelected] = useState(null) // formation shown in modal
+  const [selected, setSelected] = useState(null)
 
   useEffect(() => { loadData() }, [])
 
@@ -227,7 +244,6 @@ export default function Home() {
     if (data) setFormations(data)
   }
 
-  /* ── Calendar logic ──────────────────────────────── */
   const firstDay = new Date(current.year, current.month, 1).getDay()
   const daysInMonth = new Date(current.year, current.month + 1, 0).getDate()
   const daysInPrev = new Date(current.year, current.month, 0).getDate()
@@ -278,13 +294,11 @@ export default function Home() {
     setCurrent(p => { const d = new Date(p.year, p.month + 1); return { year: d.getFullYear(), month: d.getMonth() } })
   }
 
-  /* ── Render ──────────────────────────────────────── */
   return (
     <div
       className="relative flex flex-col min-h-dvh overflow-hidden"
       style={{ background: '#04080a' }}
     >
-      {/* Stadium background */}
       <div className="absolute inset-0 pointer-events-none">
         <div
           className="absolute inset-0"
@@ -295,7 +309,6 @@ export default function Home() {
             opacity: 0.58,
           }}
         />
-        {/* gradient: darker at top (header), lighter in middle (calendar), dark at bottom (nav) */}
         <div
           className="absolute inset-0"
           style={{
@@ -304,12 +317,11 @@ export default function Home() {
         />
       </div>
 
-      {/* ── Content ─────────────────────────────────── */}
       <div
         className="relative z-10 flex flex-col flex-1 pb-28"
         style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
       >
-        {/* ── Header ── */}
+        {/* Header */}
         <header
           className="flex items-center justify-between px-4 sticky top-0 z-40"
           style={{
@@ -321,11 +333,11 @@ export default function Home() {
           }}
         >
           <PitchIcon size={24} />
-          <span className="text-base font-bold tracking-widest text-white uppercase">Calendar</span>
-          <div style={{ width: 24 }} />
+          <span className="text-base font-bold tracking-widest text-white uppercase">{t('nav_calendar')}</span>
+          <LangToggle />
         </header>
 
-        {/* ── Month header ── */}
+        {/* Month header */}
         <div className="flex items-end justify-between px-5 pt-5 pb-6">
           <div>
             <p
@@ -335,17 +347,16 @@ export default function Home() {
               Schedule
             </p>
             <h2 className="text-4xl font-black text-white leading-none tracking-tight">
-              {MONTHS[current.month]}
+              {t(MONTH_KEYS[current.month])}
             </h2>
             <p className="text-sm font-medium mt-1.5" style={{ color: 'rgba(255,255,255,0.45)' }}>
               {current.year}
               {monthCount > 0
                 ? ` · ${monthCount} formation${monthCount !== 1 ? 's' : ''}`
-                : ' · tap a date to plan'}
+                : ` · ${t('tap_date')}`}
             </p>
           </div>
 
-          {/* Prev / Next */}
           <div className="flex items-center gap-2 mb-1">
             <button
               onClick={prev}
@@ -368,23 +379,22 @@ export default function Home() {
           </div>
         </div>
 
-        {/* ── Day-of-week labels ── */}
+        {/* Day-of-week labels */}
         <div className="grid grid-cols-7 px-4 mb-2">
-          {DAYS.map((d, i) => (
+          {DAYS_KEYS.map((key, i) => (
             <div
               key={i}
               className="text-center"
               style={{ fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,0.32)', letterSpacing: '0.06em' }}
             >
-              {d}
+              {t(key)}
             </div>
           ))}
         </div>
 
-        {/* Thin separator */}
         <div className="mx-4 mb-3" style={{ height: '1px', background: 'rgba(34,197,94,0.12)' }} />
 
-        {/* ── Calendar grid ── */}
+        {/* Calendar grid */}
         <div className="grid grid-cols-7 gap-1.5 px-4">
           {cells.map((cell, idx) => {
             const dateKey = cell.current ? ds(cell.day) : null
@@ -392,7 +402,6 @@ export default function Home() {
             const todayCell = isToday(cell)
             const past = dateKey ? isPast(dateKey) : false
 
-            /* visual state */
             let bg = 'rgba(255,255,255,0.11)'
             let border = '1px solid rgba(255,255,255,0.09)'
             let numColor = 'rgba(255,255,255,0.35)'
@@ -414,65 +423,32 @@ export default function Home() {
                 disabled={!cell.current}
                 className="relative flex flex-col items-center rounded-xl transition-all active:scale-95"
                 style={{
-                  paddingTop: '7px',
-                  paddingBottom: '6px',
-                  minHeight: '64px',
-                  background: bg,
-                  border,
+                  paddingTop: '7px', paddingBottom: '6px', minHeight: '64px',
+                  background: bg, border,
                   opacity: !cell.current ? 0.4 : 1,
                   cursor: cell.current ? 'pointer' : 'default',
                 }}
               >
-                {/* Day number */}
-                <span
-                  style={{
-                    fontSize: '14px',
-                    fontWeight: todayCell || formation ? 800 : 500,
-                    lineHeight: 1,
-                    color: numColor,
-                  }}
-                >
+                <span style={{ fontSize: '14px', fontWeight: todayCell || formation ? 800 : 500, lineHeight: 1, color: numColor }}>
                   {cell.day}
                 </span>
 
-                {/* Formation badge */}
                 {formation && (
                   <div className="flex flex-col items-center mt-1.5 gap-0.5" style={{ width: '100%', paddingInline: 3 }}>
-                    <div
-                      className="w-full rounded-sm"
-                      style={{ height: 2, background: accentColor, opacity: 0.85 }}
-                    />
-                    <span
-                      style={{
-                        fontSize: '7.5px', fontWeight: 700, color: accentColor,
-                        lineHeight: 1.2, maxWidth: '100%', textAlign: 'center',
-                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                        paddingInline: 1,
-                      }}
-                    >
+                    <div className="w-full rounded-sm" style={{ height: 2, background: accentColor, opacity: 0.85 }} />
+                    <span style={{ fontSize: '7.5px', fontWeight: 700, color: accentColor, lineHeight: 1.2, maxWidth: '100%', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', paddingInline: 1 }}>
                       {formation.result || formation.name || formation.formation_type || '···'}
                     </span>
                     {formation.result && formation.name && (
-                      <span
-                        style={{
-                          fontSize: '7px', fontWeight: 600, color: 'rgba(255,255,255,0.38)',
-                          lineHeight: 1.2, maxWidth: '100%', textAlign: 'center',
-                          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                          paddingInline: 1,
-                        }}
-                      >
+                      <span style={{ fontSize: '7px', fontWeight: 600, color: 'rgba(255,255,255,0.38)', lineHeight: 1.2, maxWidth: '100%', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', paddingInline: 1 }}>
                         {formation.name}
                       </span>
                     )}
                   </div>
                 )}
 
-                {/* Today, no formation */}
                 {todayCell && !formation && (
-                  <div
-                    className="mt-1.5 flex items-center justify-center rounded-full"
-                    style={{ width: 16, height: 16, background: 'rgba(74,222,128,0.18)' }}
-                  >
+                  <div className="mt-1.5 flex items-center justify-center rounded-full" style={{ width: 16, height: 16, background: 'rgba(74,222,128,0.18)' }}>
                     <svg viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth={3} style={{ width: 8, height: 8 }}>
                       <path d="M12 5v14M5 12h14" strokeLinecap="round" />
                     </svg>
@@ -483,25 +459,24 @@ export default function Home() {
           })}
         </div>
 
-        {/* ── Legend ── */}
+        {/* Legend */}
         <div
           className="flex items-center justify-center gap-5 mt-5 mx-4 py-3 rounded-2xl"
           style={{ background: 'rgba(255,255,255,0.11)', border: '1px solid rgba(255,255,255,0.09)' }}
         >
           <div className="flex items-center gap-1.5">
             <div className="w-5 h-0.5 rounded-full" style={{ background: '#4ade80' }} />
-            <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)', fontWeight: 600 }}>Result saved</span>
+            <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)', fontWeight: 600 }}>{t('result_saved')}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-5 h-0.5 rounded-full" style={{ background: '#60a5fa' }} />
-            <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)', fontWeight: 600 }}>Formation only</span>
+            <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)', fontWeight: 600 }}>{t('formation_only')}</span>
           </div>
         </div>
 
         <Footer />
       </div>
 
-      {/* ── Match modal ── */}
       {selected && (
         <MatchModal
           formation={selected}

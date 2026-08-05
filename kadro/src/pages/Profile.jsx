@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import Header from '../components/Layout/Header'
 import Footer from '../components/Layout/Footer'
+import { useTranslation } from '../i18n/LanguageContext'
 
 export default function Profile() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [user, setUser] = useState(null)
   const [stats, setStats] = useState({ formations: 0, players: 0 })
 
@@ -34,10 +36,9 @@ export default function Profile() {
 
   return (
     <div className="flex flex-col min-h-dvh pb-24">
-      <Header title="Profile" showBack={false} />
+      <Header title={t('profile')} showBack={false} />
 
       <div className="px-4 pt-8 flex flex-col gap-6">
-        {/* Avatar + name */}
         <div className="flex flex-col items-center gap-3">
           <div
             className="w-24 h-24 rounded-3xl flex items-center justify-center text-3xl font-black text-white shadow-2xl"
@@ -50,20 +51,19 @@ export default function Profile() {
           </div>
           <div className="text-center">
             <div className="text-xl font-bold text-white">
-              {user?.user_metadata?.full_name || 'Player'}
+              {user?.user_metadata?.full_name || t('player_default')}
             </div>
             <div className="text-sm text-gray-500 mt-0.5">{user?.email}</div>
           </div>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-2 gap-3">
           {[
-            { value: stats.formations, label: 'Formations' },
-            { value: stats.players, label: 'Players' },
-          ].map(({ value, label }) => (
+            { value: stats.formations, labelKey: 'formations' },
+            { value: stats.players, labelKey: 'players' },
+          ].map(({ value, labelKey }) => (
             <div
-              key={label}
+              key={labelKey}
               className="flex flex-col items-center py-6 rounded-2xl"
               style={{
                 background: 'rgba(255,255,255,0.08)',
@@ -71,19 +71,18 @@ export default function Profile() {
               }}
             >
               <div className="text-4xl font-black text-white">{value}</div>
-              <div className="text-xs text-gray-500 mt-1.5 uppercase tracking-wider">{label}</div>
+              <div className="text-xs text-gray-500 mt-1.5 uppercase tracking-wider">{t(labelKey)}</div>
             </div>
           ))}
         </div>
 
-        {/* Menu links */}
         <div className="flex flex-col gap-2">
           {[
-            { label: 'Manage Squad', emoji: '👥', action: () => navigate('/squad') },
-            { label: 'My Formations', emoji: '📋', action: () => navigate('/matches') },
+            { labelKey: 'manage_squad', emoji: '👥', action: () => navigate('/squad') },
+            { labelKey: 'my_formations', emoji: '📋', action: () => navigate('/matches') },
           ].map(item => (
             <button
-              key={item.label}
+              key={item.labelKey}
               onClick={item.action}
               className="flex items-center gap-3 px-4 py-4 rounded-xl text-left transition-all active:scale-[0.98]"
               style={{
@@ -92,7 +91,7 @@ export default function Profile() {
               }}
             >
               <span className="text-xl">{item.emoji}</span>
-              <span className="text-[14px] font-semibold text-white flex-1">{item.label}</span>
+              <span className="text-[14px] font-semibold text-white flex-1">{t(item.labelKey)}</span>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4 text-gray-600">
                 <path d="M9 18l6-6-6-6" />
               </svg>
@@ -100,7 +99,6 @@ export default function Profile() {
           ))}
         </div>
 
-        {/* Sign out */}
         <button
           onClick={handleLogout}
           className="w-full py-4 rounded-xl font-bold text-sm tracking-wide text-red-400 transition-all active:scale-95"
@@ -109,7 +107,7 @@ export default function Profile() {
             border: '1.5px solid rgba(239,68,68,0.18)',
           }}
         >
-          Sign Out
+          {t('sign_out')}
         </button>
 
         <Footer />

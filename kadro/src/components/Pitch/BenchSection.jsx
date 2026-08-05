@@ -1,14 +1,15 @@
 import JerseyIcon from './JerseyIcon'
+import { useTranslation } from '../../i18n/LanguageContext'
 
-export default function BenchSection({ slots, players, onSlotClick, color = 'blue', label = 'Substitutes' }) {
+export default function BenchSection({ slots, players, onSlotClick, color = 'blue', label }) {
+  const { t } = useTranslation()
   const filled = slots.filter(s => players[s.key])
   const empty  = slots.filter(s => !players[s.key])
 
   return (
     <div className="px-4 pt-4 pb-2">
-      {/* Header row */}
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-bold text-white tracking-widest uppercase">{label}</span>
+        <span className="text-xs font-bold text-white tracking-widest uppercase">{label ?? t('substitutes')}</span>
         <span
           className="text-xs font-bold px-2.5 py-1 rounded-full"
           style={{ background: 'rgba(74,222,128,0.12)', color: '#4ade80' }}
@@ -17,7 +18,6 @@ export default function BenchSection({ slots, players, onSlotClick, color = 'blu
         </span>
       </div>
 
-      {/* Scrollable card row */}
       <div className="flex gap-2.5 overflow-x-auto no-scrollbar pb-1">
         {slots.map((slot) => {
           const player = players[slot.key]
@@ -51,7 +51,7 @@ export default function BenchSection({ slots, players, onSlotClick, color = 'blu
                   <div className="flex-1 flex items-center justify-center">
                     <span style={{ fontSize: '22px', color: 'rgba(255,255,255,0.35)', lineHeight: 1 }}>+</span>
                   </div>
-                  <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.25)' }}>Add</span>
+                  <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.25)' }}>{t('add')}</span>
                 </>
               )}
             </button>

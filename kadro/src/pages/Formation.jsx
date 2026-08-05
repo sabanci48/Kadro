@@ -8,22 +8,23 @@ import BenchSection from '../components/Pitch/BenchSection'
 import PlayerPickerModal from '../components/Players/PlayerPickerModal'
 import PlayerStatsModal, { getPlayerOverall, getPlayerGoals } from '../components/Players/PlayerStatsModal'
 import Footer from '../components/Layout/Footer'
+import { useTranslation } from '../i18n/LanguageContext'
 
 const MATCH_TYPES = ['Friendly', 'League', 'Cup', 'Tournament', 'Training']
 
 const JERSEY_COLORS = [
-  { key: 'blue',   from: '#60a5fa', label: 'Blue' },
-  { key: 'red',    from: '#f87171', label: 'Red' },
-  { key: 'green',  from: '#4ade80', label: 'Green' },
-  { key: 'white',  from: '#e2e8f0', label: 'White' },
-  { key: 'black',  from: '#4b5563', label: 'Black' },
-  { key: 'yellow', from: '#fde047', label: 'Yellow' },
-  { key: 'orange', from: '#fb923c', label: 'Orange' },
-  { key: 'purple', from: '#c084fc', label: 'Purple' },
-  { key: 'cyan',   from: '#22d3ee', label: 'Sky' },
-  { key: 'maroon', from: '#e11d48', label: 'Maroon' },
-  { key: 'navy',   from: '#2563eb', label: 'Navy' },
-  { key: 'pink',   from: '#f472b6', label: 'Pink' },
+  { key: 'blue',   from: '#60a5fa', labelKey: 'color_blue' },
+  { key: 'red',    from: '#f87171', labelKey: 'color_red' },
+  { key: 'green',  from: '#4ade80', labelKey: 'color_green' },
+  { key: 'white',  from: '#e2e8f0', labelKey: 'color_white' },
+  { key: 'black',  from: '#4b5563', labelKey: 'color_black' },
+  { key: 'yellow', from: '#fde047', labelKey: 'color_yellow' },
+  { key: 'orange', from: '#fb923c', labelKey: 'color_orange' },
+  { key: 'purple', from: '#c084fc', labelKey: 'color_purple' },
+  { key: 'cyan',   from: '#22d3ee', labelKey: 'color_sky' },
+  { key: 'maroon', from: '#e11d48', labelKey: 'color_maroon' },
+  { key: 'navy',   from: '#2563eb', labelKey: 'color_navy' },
+  { key: 'pink',   from: '#f472b6', labelKey: 'color_pink' },
 ]
 
 const TEAM_STYLE_MAP = {
@@ -69,7 +70,27 @@ function persistPlayerCount(formationId, count) {
   }
 }
 
-function ColorPicker({ label, value, onChange }) {
+function LangToggle() {
+  const { lang, setLang } = useTranslation()
+  return (
+    <div className="flex items-center rounded-lg overflow-hidden flex-shrink-0"
+         style={{ border: '1px solid rgba(255,255,255,0.13)' }}>
+      {['TR', 'EN'].map(l => (
+        <button
+          key={l}
+          onClick={() => setLang(l.toLowerCase())}
+          className="px-2.5 py-1 text-[10px] font-bold transition-all"
+          style={{
+            background: lang === l.toLowerCase() ? 'rgba(34,197,94,0.18)' : 'transparent',
+            color: lang === l.toLowerCase() ? '#4ade80' : '#6b7280',
+          }}
+        >{l}</button>
+      ))}
+    </div>
+  )
+}
+
+function ColorPicker({ label, value, onChange, t }) {
   return (
     <div>
       <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 block">{label}</label>
@@ -94,7 +115,7 @@ function ColorPicker({ label, value, onChange }) {
               fontSize: '9px', fontWeight: 700,
               color: value === c.key ? 'white' : '#6b7280',
             }}>
-              {c.label}
+              {t(c.labelKey)}
             </span>
           </button>
         ))}
@@ -108,9 +129,14 @@ const ALL_BENCH_SLOTS = [
   { key: 'SUB4' }, { key: 'SUB5' }, { key: 'SUB6' }, { key: 'SUB7' },
 ]
 
-const TABS = ['Formation', 'Stats', 'Match Info']
+const TABS = [
+  { key: 'formation', labelKey: 'formation' },
+  { key: 'stats',     labelKey: 'stats' },
+  { key: 'match',     labelKey: 'match_info' },
+]
 
 export default function Formation() {
+  const { t } = useTranslation()
   const { id } = useParams()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
@@ -118,7 +144,7 @@ export default function Formation() {
   const isNew = id === 'new'
   const defaultDate = searchParams.get('date') || ''
 
-  const [tab, setTab] = useState('Formation')
+  const [tab, setTab] = useState('formation')
   const [viewMode, setViewMode] = useState('single')
   const [formationType, setFormationType] = useState('4-3-3')
   const [formationName, setFormationName] = useState('')
@@ -363,39 +389,41 @@ export default function Formation() {
           </svg>
         </button>
 
-        {/* Center: title */}
-        <span className="text-base font-bold tracking-widest text-white uppercase">Formation</span>
+        <span className="text-base font-bold tracking-widest text-white uppercase">{t('formation')}</span>
 
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="font-bold text-sm disabled:opacity-50 transition-all active:scale-95 flex-shrink-0"
-          style={{ color: '#4ade80', minWidth: '44px', minHeight: '44px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}
-        >
-          {saving ? '…' : 'Save'}
-        </button>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <LangToggle />
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="font-bold text-sm disabled:opacity-50 transition-all active:scale-95"
+            style={{ color: '#4ade80', minWidth: '44px', minHeight: '44px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}
+          >
+            {saving ? t('saving') : t('save')}
+          </button>
+        </div>
       </header>
 
       {/* Tabs */}
       <div className="flex" style={{ borderBottom: '1px solid rgba(34,197,94,0.1)' }}>
-        {TABS.map(t => (
+        {TABS.map(tb => (
           <button
-            key={t}
-            onClick={() => setTab(t)}
+            key={tb.key}
+            onClick={() => setTab(tb.key)}
             className="flex-1 py-3.5 font-bold tracking-wide transition-colors"
             style={{
               fontSize: '13px',
-              color: tab === t ? '#4ade80' : '#6b7280',
-              borderBottom: tab === t ? '2px solid #22c55e' : '2px solid transparent',
+              color: tab === tb.key ? '#4ade80' : '#6b7280',
+              borderBottom: tab === tb.key ? '2px solid #22c55e' : '2px solid transparent',
             }}
           >
-            {t}
+            {t(tb.labelKey)}
           </button>
         ))}
       </div>
 
       {/* Formation tab */}
-      {tab === 'Formation' && (
+      {tab === 'formation' && (
         <div className="flex-1 px-3 pt-3">
           {/* Toolbar */}
           <div className="flex flex-col gap-2 mb-3 px-1">
@@ -412,7 +440,7 @@ export default function Formation() {
                     ? { background: '#16a34a', color: 'white' }
                     : { color: '#6b7280' }}
                 >
-                  1 Team
+                  {t('one_team')}
                 </button>
                 <button
                   onClick={() => setViewMode('match')}
@@ -421,7 +449,7 @@ export default function Formation() {
                     ? { background: '#16a34a', color: 'white' }
                     : { color: '#6b7280' }}
                 >
-                  2 Teams
+                  {t('two_teams')}
                 </button>
               </div>
 
@@ -623,7 +651,7 @@ export default function Formation() {
                   players={homeAssignments}
                   onSlotClick={s => openPicker(s, 'home')}
                   color="blue"
-                  label={`${homeTeamName} Bench`}
+                  label={`${homeTeamName} ${t('bench_label')}`}
                 />
               </div>
 
@@ -634,7 +662,7 @@ export default function Formation() {
                   players={awayAssignments}
                   onSlotClick={s => openPicker(s, 'away')}
                   color="red"
-                  label={`${awayTeamName} Bench`}
+                  label={`${awayTeamName} ${t('bench_label')}`}
                 />
               </div>
             </div>
@@ -643,10 +671,10 @@ export default function Formation() {
       )}
 
       {/* Stats tab */}
-      {tab === 'Stats' && (
+      {tab === 'stats' && (
         <div className="flex-1 px-4 pt-4 pb-4">
           <p className="text-xs font-bold text-gray-600 uppercase tracking-widest mb-3">
-            Tap a player to rate their performance
+            {t('tap_player_rate')}
           </p>
           <div className="flex flex-col gap-2">
             {[...slots, ...benchSlots].map(slot => {
@@ -691,7 +719,7 @@ export default function Formation() {
                         <span className="text-[8px] font-bold" style={{ color: '#4ade80' }}>OVR</span>
                       </div>
                     ) : (
-                      <span className="text-xs font-bold" style={{ color: 'rgba(255,255,255,0.32)' }}>Rate →</span>
+                      <span className="text-xs font-bold" style={{ color: 'rgba(255,255,255,0.32)' }}>{t('rate_arrow')}</span>
                     )}
                   </div>
                 </button>
@@ -738,39 +766,39 @@ export default function Formation() {
 
           {isNew && (
             <p className="text-center text-xs mt-6" style={{ color: 'rgba(255,255,255,0.32)' }}>
-              Save the formation first to enable ratings
+              {t('save_first_ratings')}
             </p>
           )}
         </div>
       )}
 
       {/* Match Info tab */}
-      {tab === 'Match Info' && (
+      {tab === 'match' && (
         <div className="flex-1 px-4 pt-4 flex flex-col gap-5 pb-4">
           <div>
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">Match Type</label>
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">{t('match_type')}</label>
             <input
               value={formationName}
               onChange={e => setFormationName(e.target.value)}
-              placeholder="e.g. League, Friendly, Cup…"
+              placeholder={t('match_type_placeholder')}
               className="w-full px-4 py-3.5 rounded-xl text-white text-[15px] outline-none"
               style={{ background: 'rgba(255,255,255,0.09)', border: '1.5px solid rgba(255,255,255,0.15)' }}
             />
           </div>
 
           <div>
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">Result</label>
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">{t('result')}</label>
             <input
               value={result}
               onChange={e => setResult(e.target.value)}
-              placeholder="e.g. 3-1"
+              placeholder={t('result_placeholder')}
               className="w-full px-4 py-3.5 rounded-xl text-white text-[15px] outline-none"
               style={{ background: 'rgba(255,255,255,0.09)', border: '1.5px solid rgba(255,255,255,0.15)' }}
             />
           </div>
 
           <div>
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">Match Date</label>
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">{t('match_date')}</label>
             <input
               type="date"
               value={matchDate}
@@ -783,7 +811,7 @@ export default function Formation() {
           {viewMode === 'match' && (
             <>
               <div>
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">Home Team</label>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">{t('home_team')}</label>
                 <input
                   value={homeTeamName}
                   onChange={e => setHomeTeamName(e.target.value)}
@@ -792,7 +820,7 @@ export default function Formation() {
                 />
               </div>
               <div>
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">Away Team</label>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">{t('away_team')}</label>
                 <input
                   value={awayTeamName}
                   onChange={e => setAwayTeamName(e.target.value)}
@@ -805,24 +833,24 @@ export default function Formation() {
 
           {/* Jersey color pickers */}
           {viewMode === 'single' ? (
-            <ColorPicker label="Team Color" value={homeTeamColor} onChange={setHomeTeamColor} />
+            <ColorPicker label={t('team_color')} value={homeTeamColor} onChange={setHomeTeamColor} t={t} />
           ) : (
             <>
-              <ColorPicker label="Home Team Color" value={homeTeamColor} onChange={setHomeTeamColor} />
-              <ColorPicker label="Away Team Color" value={awayTeamColor} onChange={setAwayTeamColor} />
+              <ColorPicker label={t('home_team_color')} value={homeTeamColor} onChange={setHomeTeamColor} t={t} />
+              <ColorPicker label={t('away_team_color')} value={awayTeamColor} onChange={setAwayTeamColor} t={t} />
             </>
           )}
 
           {/* Share */}
           <div>
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 block">Share</label>
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 block">{t('share')}</label>
             <div
               className="flex items-center justify-between px-4 py-4 rounded-xl"
               style={{ background: 'rgba(255,255,255,0.09)', border: '1.5px solid rgba(255,255,255,0.15)' }}
             >
               <div>
-                <p className="text-sm font-semibold text-white">Public Link</p>
-                <p className="text-xs mt-0.5" style={{ color: '#6b7280' }}>Anyone with link can view</p>
+                <p className="text-sm font-semibold text-white">{t('public_link')}</p>
+                <p className="text-xs mt-0.5" style={{ color: '#6b7280' }}>{t('public_link_desc')}</p>
               </div>
               <button
                 onClick={() => { if (!isNew) setIsPublic(p => !p) }}
@@ -868,7 +896,7 @@ export default function Formation() {
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} style={{ width: 13, height: 13 }}>
                           <polyline points="20 6 9 17 4 12" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
-                        Copied!
+                        {t('copied')}
                       </>
                     ) : (
                       <>
@@ -876,7 +904,7 @@ export default function Formation() {
                           <rect x="9" y="9" width="13" height="13" rx="2" />
                           <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                         </svg>
-                        Copy 1-Team Link
+                        {t('copy_1team_link')}
                       </>
                     )}
                   </button>
@@ -901,7 +929,7 @@ export default function Formation() {
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} style={{ width: 13, height: 13 }}>
                           <polyline points="20 6 9 17 4 12" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
-                        Copied!
+                        {t('copied')}
                       </>
                     ) : (
                       <>
@@ -909,7 +937,7 @@ export default function Formation() {
                           <rect x="9" y="9" width="13" height="13" rx="2" />
                           <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                         </svg>
-                        Copy 2-Teams Link
+                        {t('copy_2teams_link')}
                       </>
                     )}
                   </button>
@@ -934,7 +962,7 @@ export default function Formation() {
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} style={{ width: 13, height: 13 }}>
                           <polyline points="20 6 9 17 4 12" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
-                        Copied!
+                        {t('copied')}
                       </>
                     ) : (
                       <>
@@ -942,7 +970,7 @@ export default function Formation() {
                           <rect x="9" y="9" width="13" height="13" rx="2" />
                           <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                         </svg>
-                        Copy Share Link
+                        {t('copy_share_link')}
                       </>
                     )}
                   </button>
@@ -952,18 +980,18 @@ export default function Formation() {
 
             {isNew && (
               <p className="text-xs text-center mt-2" style={{ color: 'rgba(255,255,255,0.32)' }}>
-                Save the formation first to enable sharing
+                {t('save_first_share')}
               </p>
             )}
           </div>
 
           <div>
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">Notes</label>
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">{t('notes')}</label>
             <textarea
               value={notes}
               onChange={e => setNotes(e.target.value)}
               rows={4}
-              placeholder="Tactical notes, match summary…"
+              placeholder={t('notes_placeholder')}
               className="w-full px-4 py-3.5 rounded-xl text-white text-[15px] outline-none resize-none"
               style={{ background: 'rgba(255,255,255,0.09)', border: '1.5px solid rgba(255,255,255,0.15)' }}
             />

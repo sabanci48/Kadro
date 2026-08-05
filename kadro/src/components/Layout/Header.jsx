@@ -1,4 +1,29 @@
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from '../../i18n/LanguageContext'
+
+function LangToggle() {
+  const { lang, setLang } = useTranslation()
+  return (
+    <div
+      className="flex items-center rounded-lg overflow-hidden flex-shrink-0"
+      style={{ border: '1px solid rgba(255,255,255,0.13)' }}
+    >
+      {['TR', 'EN'].map(l => (
+        <button
+          key={l}
+          onClick={() => setLang(l.toLowerCase())}
+          className="px-2.5 py-1 text-[10px] font-bold transition-all"
+          style={{
+            background: lang === l.toLowerCase() ? 'rgba(34,197,94,0.18)' : 'transparent',
+            color: lang === l.toLowerCase() ? '#4ade80' : '#6b7280',
+          }}
+        >
+          {l}
+        </button>
+      ))}
+    </div>
+  )
+}
 
 export default function Header({ title, showBack = true, right }) {
   const navigate = useNavigate()
@@ -30,7 +55,8 @@ export default function Header({ title, showBack = true, right }) {
 
       <h1 className="text-[15px] font-bold tracking-widest text-white uppercase">{title}</h1>
 
-      <div className="flex-1 flex items-center justify-end">
+      <div className="flex-1 flex items-center justify-end gap-2">
+        <LangToggle />
         {right}
       </div>
     </header>
