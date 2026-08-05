@@ -169,8 +169,10 @@ export default function Formation() {
   const [homeTeamColor, setHomeTeamColor] = useState('blue')
   const [awayTeamColor, setAwayTeamColor] = useState('red')
   const [isPublic, setIsPublic] = useState(false)
+  const [isDirty, setIsDirty] = useState(isNew)
   const [copiedSingle, setCopiedSingle] = useState(false)
   const [copiedMatch, setCopiedMatch] = useState(false)
+  const [showShareMenu, setShowShareMenu] = useState(false)
   const [playerCount, setPlayerCount] = useState(11)
   const [customPositions, setCustomPositions] = useState({})
   const [dragLive, setDragLive] = useState(null)
@@ -178,6 +180,7 @@ export default function Formation() {
   const hasDraggedRef = useRef(false)
   const pitchRef = useRef(null)
   const matchPitchRef = useRef(null)
+  const shareMenuRef = useRef(null)
 
   const slots =(MATCH_FORMATS[playerCount] ?? FORMATIONS[formationType]) || []
   const awaySlots = (MATCH_FORMATS[playerCount] ?? FORMATIONS[awayFormationType]) || []
@@ -228,6 +231,35 @@ export default function Formation() {
       window.removeEventListener('pointerup', onUp)
     }
   }, [])
+
+  useEffect(() => {
+    function onClickOutside(e) {
+      if (shareMenuRef.current && !shareMenuRef.current.contains(e.target)) {
+        setShowShareMenu(false)
+      }
+    }
+    document.addEventListener('pointerdown', onClickOutside)
+    return () => document.removeEventListener('pointerdown', onClickOutside)
+  }, [])
+
+  async function handleQuickShare(type) {
+    setShowShareMenu(false)
+    if (!isPublic) {
+      setIsPublic(true)
+      await supabase.from('formations').update({ is_public: true }).eq('id', id)
+    }
+    const url = type === 'single'
+      ? `${window.location.origin}/share/${id}?view=single`
+      : `${window.location.origin}/share/${id}?view=match`
+    navigator.clipboard.writeText(url)
+    if (type === 'single') {
+      setCopiedSingle(true)
+      setTimeout(() => setCopiedSingle(false), 2000)
+    } else {
+      setCopiedMatch(true)
+      setTimeout(() => setCopiedMatch(false), 2000)
+    }
+  }
 
   async function loadSquad() {
     const { data: { user } } = await supabase.auth.getUser()
@@ -312,6 +344,7 @@ export default function Formation() {
     })
     if (slotRows.length > 0) await supabase.from('formation_slots').insert(slotRows)
 
+    setIsDirty(false)
     setSaving(false)
     persistColors(formationId, homeTeamColor, awayTeamColor)
     persistPlayerCount(formationId, playerCount)
@@ -346,6 +379,7 @@ export default function Formation() {
     else if (viewMode === 'match') setHomeAssignments(prev => ({ ...prev, [activeSlot.key]: player }))
     else setAssignments(prev => ({ ...prev, [activeSlot.key]: player }))
     setActiveSlot(null)
+    setIsDirty(true)
   }
 
   function handlePlayerRemove() {
@@ -353,6 +387,7 @@ export default function Formation() {
     else if (viewMode === 'match') setHomeAssignments(prev => { const n = { ...prev }; delete n[activeSlot.key]; return n })
     else setAssignments(prev => { const n = { ...prev }; delete n[activeSlot.key]; return n })
     setActiveSlot(null)
+    setIsDirty(true)
   }
 
   if (loading) {
@@ -370,7 +405,7 @@ export default function Formation() {
     <div className="flex flex-col min-h-dvh pb-32">
       {/* Header — matches reference: back | FORMATION / 4-3-3↓ | Save */}
       <header
-        className="flex items-end justify-between px-4 sticky top-0 z-40"
+        className="relative flex items-center justify-between px-4 sticky top-0 z-40"
         style={{
           background: 'rgba(13,13,13,0.97)',
           borderBottom: '1px solid rgba(255,255,255,0.13)',
@@ -389,16 +424,23 @@ export default function Formation() {
           </svg>
         </button>
 
-        <span className="text-base font-bold tracking-widest text-white uppercase">{t('formation')}</span>
+        <span className="absolute left-1/2 -translate-x-1/2 text-sm font-bold tracking-widest text-white uppercase pointer-events-none">{t('formation')}</span>
 
         <div className="flex items-center gap-2 flex-shrink-0">
           <LangToggle />
           <button
             onClick={handleSave}
-            disabled={saving}
-            className="font-bold text-sm disabled:opacity-50 transition-all active:scale-95"
-            style={{ color: '#4ade80', minWidth: '44px', minHeight: '44px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}
+            disabled={saving || !isDirty}
+            className="font-bold text-sm transition-all active:scale-95 flex items-center gap-1.5 disabled:opacity-40"
+            style={{
+              color: isDirty ? '#4ade80' : '#374151',
+              minWidth: '44px', minHeight: '44px',
+              display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
+            }}
           >
+            {isDirty && !saving && (
+              <span className="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0" style={{ background: '#4ade80' }} />
+            )}
             {saving ? t('saving') : t('save')}
           </button>
         </div>
@@ -453,24 +495,99 @@ export default function Formation() {
                 </button>
               </div>
 
-              {/* Player count dropdown */}
-              <select
-                value={playerCount}
-                onChange={e => setPlayerCount(Number(e.target.value))}
-                className="px-3 py-1.5 rounded-xl text-xs font-bold outline-none appearance-none cursor-pointer"
-                style={{
-                  background: '#242424',
-                  border: '1px solid rgba(255,255,255,0.15)',
-                  color: '#4ade80',
-                  colorScheme: 'dark',
-                }}
-              >
-                {[5,6,7,8,9,10,11].map(n => (
-                  <option key={n} value={n} style={{ background: '#242424', color: '#4ade80' }}>
-                    {n}v{n}
-                  </option>
-                ))}
-              </select>
+              <div className="flex items-center gap-2">
+                {/* Share dropdown */}
+                <div className="relative" ref={shareMenuRef}>
+                  <button
+                    onClick={() => !isNew && setShowShareMenu(p => !p)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all"
+                    style={{
+                      background: '#242424',
+                      border: `1px solid ${showShareMenu ? 'rgba(34,197,94,0.4)' : 'rgba(255,255,255,0.15)'}`,
+                      color: isNew ? '#4b5563' : '#4ade80',
+                      cursor: isNew ? 'not-allowed' : 'pointer',
+                    }}
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: 13, height: 13 }}>
+                      <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8" strokeLinecap="round" strokeLinejoin="round" />
+                      <polyline points="16 6 12 2 8 6" strokeLinecap="round" strokeLinejoin="round" />
+                      <line x1="12" y1="2" x2="12" y2="15" strokeLinecap="round" />
+                    </svg>
+                    {t('share')}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} style={{ width: 8, height: 8, marginLeft: -2 }}>
+                      <path d="M6 9l6 6 6-6" strokeLinecap="round" />
+                    </svg>
+                  </button>
+
+                  {showShareMenu && (
+                    <div
+                      className="absolute top-full right-0 mt-1.5 rounded-xl overflow-hidden z-30"
+                      style={{
+                        background: 'linear-gradient(160deg, #111 0%, #0d0d0d 100%)',
+                        border: '1px solid rgba(34,197,94,0.2)',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,0,0,0.2)',
+                        minWidth: '170px',
+                      }}
+                    >
+                      <button
+                        onClick={() => handleQuickShare('single')}
+                        className="w-full text-left px-3.5 py-3 text-[11px] font-bold flex items-center gap-2 transition-colors"
+                        style={{ color: copiedSingle ? '#4ade80' : '#9ca3af', borderBottom: '1px solid rgba(255,255,255,0.07)' }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                      >
+                        {copiedSingle ? (
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} style={{ width: 12, height: 12, flexShrink: 0 }}>
+                            <polyline points="20 6 9 17 4 12" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        ) : (
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: 12, height: 12, flexShrink: 0 }}>
+                            <rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                          </svg>
+                        )}
+                        {copiedSingle ? t('copied') : t('copy_1team_link')}
+                      </button>
+                      <button
+                        onClick={() => handleQuickShare('match')}
+                        className="w-full text-left px-3.5 py-3 text-[11px] font-bold flex items-center gap-2 transition-colors"
+                        style={{ color: copiedMatch ? '#4ade80' : '#9ca3af' }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                      >
+                        {copiedMatch ? (
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} style={{ width: 12, height: 12, flexShrink: 0 }}>
+                            <polyline points="20 6 9 17 4 12" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        ) : (
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: 12, height: 12, flexShrink: 0 }}>
+                            <rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                          </svg>
+                        )}
+                        {copiedMatch ? t('copied') : t('copy_2teams_link')}
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Player count dropdown */}
+                <select
+                  value={playerCount}
+                  onChange={e => setPlayerCount(Number(e.target.value))}
+                  className="px-3 py-1.5 rounded-xl text-xs font-bold outline-none appearance-none cursor-pointer"
+                  style={{
+                    background: '#242424',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    color: '#4ade80',
+                    colorScheme: 'dark',
+                  }}
+                >
+                  {[5,6,7,8,9,10,11].map(n => (
+                    <option key={n} value={n} style={{ background: '#242424', color: '#4ade80' }}>
+                      {n}v{n}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
           </div>
@@ -501,7 +618,7 @@ export default function Formation() {
                         {FORMATION_TYPES.map(f => (
                           <button
                             key={f}
-                            onClick={() => { setFormationType(f); setShowHomePicker(false) }}
+                            onClick={() => { setFormationType(f); setShowHomePicker(false); setIsDirty(true) }}
                             className="w-full text-left px-3 py-2 text-[11px] font-bold transition-colors hover:bg-blue-900/40"
                             style={{ color: f === formationType ? '#60a5fa' : '#9ca3af' }}
                           >
@@ -562,7 +679,7 @@ export default function Formation() {
                         {FORMATION_TYPES.map(f => (
                           <button
                             key={f}
-                            onClick={() => { setFormationType(f); setShowHomePicker(false) }}
+                            onClick={() => { setFormationType(f); setShowHomePicker(false); setIsDirty(true) }}
                             className="w-full text-left px-3 py-2 text-[11px] font-bold transition-colors hover:bg-blue-900/40"
                             style={{ color: f === formationType ? '#60a5fa' : '#9ca3af' }}
                           >
@@ -595,7 +712,7 @@ export default function Formation() {
                         {FORMATION_TYPES.map(f => (
                           <button
                             key={f}
-                            onClick={() => { setAwayFormationType(f); setShowAwayPicker(false) }}
+                            onClick={() => { setAwayFormationType(f); setShowAwayPicker(false); setIsDirty(true) }}
                             className="w-full text-left px-3 py-2 text-[11px] font-bold transition-colors hover:bg-red-900/40"
                             style={{ color: f === awayFormationType ? '#f87171' : '#9ca3af' }}
                           >
@@ -779,7 +896,7 @@ export default function Formation() {
             <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">{t('match_type')}</label>
             <input
               value={formationName}
-              onChange={e => setFormationName(e.target.value)}
+              onChange={e => { setFormationName(e.target.value); setIsDirty(true) }}
               placeholder={t('match_type_placeholder')}
               className="w-full px-4 py-3.5 rounded-xl text-white text-[15px] outline-none"
               style={{ background: 'rgba(255,255,255,0.09)', border: '1.5px solid rgba(255,255,255,0.15)' }}
@@ -790,7 +907,7 @@ export default function Formation() {
             <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">{t('result')}</label>
             <input
               value={result}
-              onChange={e => setResult(e.target.value)}
+              onChange={e => { setResult(e.target.value); setIsDirty(true) }}
               placeholder={t('result_placeholder')}
               className="w-full px-4 py-3.5 rounded-xl text-white text-[15px] outline-none"
               style={{ background: 'rgba(255,255,255,0.09)', border: '1.5px solid rgba(255,255,255,0.15)' }}
@@ -802,7 +919,7 @@ export default function Formation() {
             <input
               type="date"
               value={matchDate}
-              onChange={e => setMatchDate(e.target.value)}
+              onChange={e => { setMatchDate(e.target.value); setIsDirty(true) }}
               className="w-full px-4 py-3.5 rounded-xl text-white text-[15px] outline-none"
               style={{ background: 'rgba(255,255,255,0.09)', border: '1.5px solid rgba(255,255,255,0.15)', colorScheme: 'dark' }}
             />
@@ -814,7 +931,7 @@ export default function Formation() {
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">{t('home_team')}</label>
                 <input
                   value={homeTeamName}
-                  onChange={e => setHomeTeamName(e.target.value)}
+                  onChange={e => { setHomeTeamName(e.target.value); setIsDirty(true) }}
                   className="w-full px-4 py-3.5 rounded-xl text-white text-[15px] outline-none"
                   style={{ background: 'rgba(255,255,255,0.09)', border: '1.5px solid rgba(255,255,255,0.15)' }}
                 />
@@ -823,7 +940,7 @@ export default function Formation() {
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">{t('away_team')}</label>
                 <input
                   value={awayTeamName}
-                  onChange={e => setAwayTeamName(e.target.value)}
+                  onChange={e => { setAwayTeamName(e.target.value); setIsDirty(true) }}
                   className="w-full px-4 py-3.5 rounded-xl text-white text-[15px] outline-none"
                   style={{ background: 'rgba(255,255,255,0.09)', border: '1.5px solid rgba(255,255,255,0.15)' }}
                 />
@@ -853,7 +970,7 @@ export default function Formation() {
                 <p className="text-xs mt-0.5" style={{ color: '#6b7280' }}>{t('public_link_desc')}</p>
               </div>
               <button
-                onClick={() => { if (!isNew) setIsPublic(p => !p) }}
+                onClick={() => { if (!isNew) { setIsPublic(p => !p); setIsDirty(true) } }}
                 style={{
                   position: 'relative', flexShrink: 0,
                   width: 46, height: 26, borderRadius: 13,
@@ -989,7 +1106,7 @@ export default function Formation() {
             <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">{t('notes')}</label>
             <textarea
               value={notes}
-              onChange={e => setNotes(e.target.value)}
+              onChange={e => { setNotes(e.target.value); setIsDirty(true) }}
               rows={4}
               placeholder={t('notes_placeholder')}
               className="w-full px-4 py-3.5 rounded-xl text-white text-[15px] outline-none resize-none"
