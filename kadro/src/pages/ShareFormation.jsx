@@ -381,6 +381,11 @@ export default function ShareFormation() {
             <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.25)', fontWeight: 500 }}>
               © {new Date().getFullYear()} KADRO. All rights reserved.
             </p>
+
+            {/* Sponsor */}
+            <span className="text-[9px] font-bold uppercase tracking-wider mt-1" style={{ color: 'rgba(255,255,255,0.28)' }}>
+              Powered by Union Anatolia FC
+            </span>
           </div>
         </div>
       </div>

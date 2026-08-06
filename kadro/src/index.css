@@ -92,3 +92,14 @@ select:focus {
 /* Scrollbar hide */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { scrollbar-width: none; }
+
+/* Waving flag */
+@keyframes waveFlag {
+  0%, 100% { transform: perspective(250px) rotateY(0deg) skewY(0deg); }
+  30%       { transform: perspective(250px) rotateY(22deg) skewY(-1.5deg); }
+  65%       { transform: perspective(250px) rotateY(-14deg) skewY(1deg); }
+}
+.wave-flag {
+  animation: waveFlag 3.2s ease-in-out infinite;
+  transform-origin: left center;
+}

@@ -45,7 +45,7 @@ function LangToggle() {
   return (
     <div
       className="flex items-center rounded-lg overflow-hidden absolute top-4 right-4"
-      style={{ border: '1px solid rgba(255,255,255,0.13)', zIndex: 10 }}
+      style={{ border: '1px solid rgba(255,255,255,0.13)', zIndex: 50 }}
     >
       {['TR', 'EN'].map(l => (
         <button

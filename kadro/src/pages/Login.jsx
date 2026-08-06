@@ -45,7 +45,7 @@ function LangToggle() {
   return (
     <div
       className="flex items-center rounded-lg overflow-hidden absolute top-4 right-4"
-      style={{ border: '1px solid rgba(255,255,255,0.13)', zIndex: 10 }}
+      style={{ border: '1px solid rgba(255,255,255,0.13)', zIndex: 50 }}
     >
       {['TR', 'EN'].map(l => (
         <button
@@ -102,7 +102,7 @@ export default function Login() {
       />
       <div
         className="absolute inset-0 pointer-events-none"
-        style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.75) 50%, rgba(0,0,0,0.92) 100%)' }}
+        style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0.55) 50%, rgba(0,0,0,0.88) 100%)' }}
       />
       <div
         className="absolute pointer-events-none"
@@ -116,18 +116,55 @@ export default function Login() {
       <div className="relative z-10 flex-1 flex flex-col justify-center px-6" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
         <div className="flex flex-col items-center mb-10">
           <div className="mb-5"><PitchLogo size={88} /></div>
-          <h1
-            className="text-5xl font-black text-white"
-            style={{ letterSpacing: '0.25em', textShadow: '0 0 40px rgba(74,222,128,0.35)' }}
-          >
-            KADRO
-          </h1>
-          <p className="text-sm mt-2 tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.45)' }}>{t('build_your_squad')}</p>
+
+          <div className="flex items-center gap-3">
+            <h1
+              className="text-5xl font-black text-white"
+              style={{ letterSpacing: '0.25em', textShadow: '0 0 40px rgba(74,222,128,0.35)' }}
+            >
+              KADRO
+            </h1>
+
+            {/* Waving flag */}
+            <div style={{ position: 'relative', width: 18, height: 58, flexShrink: 0 }}>
+              {/* Pole */}
+              <div style={{
+                position: 'absolute', left: 7, top: 0,
+                width: 2, height: 58,
+                background: 'linear-gradient(to bottom, rgba(255,255,255,0.9), rgba(255,255,255,0.2))',
+                borderRadius: 1,
+              }} />
+              {/* Finial */}
+              <div style={{
+                position: 'absolute', left: 4, top: -4,
+                width: 8, height: 8, borderRadius: '50%',
+                background: 'white',
+                boxShadow: '0 0 6px rgba(255,255,255,0.6)',
+              }} />
+              {/* Flag */}
+              <div
+                className="wave-flag"
+                style={{
+                  position: 'absolute', top: 3, left: 9,
+                  width: 46, height: 32,
+                  background: 'white',
+                  borderRadius: '0 5px 5px 0',
+                  boxShadow: '2px 3px 14px rgba(0,0,0,0.5)',
+                  overflow: 'hidden',
+                  padding: 3,
+                }}
+              >
+                <img src="/uafc-logo.png" alt="Union Anatolia FC" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              </div>
+            </div>
+          </div>
+
+          <p className="text-sm mt-2 tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.65)' }}>{t('build_your_squad')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
-            <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">{t('email')}</label>
+            <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">{t('email')}</label>
             <input
               type="email" value={email} onChange={e => setEmail(e.target.value)} required
               placeholder="you@example.com"
@@ -136,7 +173,7 @@ export default function Login() {
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">{t('password')}</label>
+            <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">{t('password')}</label>
             <input
               type="password" value={password} onChange={e => setPassword(e.target.value)} required
               placeholder="••••••••"
@@ -163,7 +200,7 @@ export default function Login() {
           </button>
         </form>
 
-        <p className="text-center text-sm text-gray-700 mt-8">
+        <p className="text-center text-sm text-gray-400 mt-8">
           {t('no_account')}{' '}
           <Link to="/signup" className="text-green-400 font-bold hover:text-green-300 transition-colors">
             {t('create_one')}
