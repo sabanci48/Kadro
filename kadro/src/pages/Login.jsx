@@ -126,32 +126,32 @@ export default function Login() {
             </h1>
 
             {/* Waving flag */}
-            <div style={{ position: 'relative', width: 18, height: 58, flexShrink: 0 }}>
+            <div style={{ position: 'relative', width: 24, height: 72, flexShrink: 0 }}>
               {/* Pole */}
               <div style={{
-                position: 'absolute', left: 7, top: 0,
-                width: 2, height: 58,
+                position: 'absolute', left: 9, top: 0,
+                width: 2.5, height: 72,
                 background: 'linear-gradient(to bottom, rgba(255,255,255,0.9), rgba(255,255,255,0.2))',
                 borderRadius: 1,
               }} />
               {/* Finial */}
               <div style={{
-                position: 'absolute', left: 4, top: -4,
-                width: 8, height: 8, borderRadius: '50%',
+                position: 'absolute', left: 5, top: -5,
+                width: 10, height: 10, borderRadius: '50%',
                 background: 'white',
-                boxShadow: '0 0 6px rgba(255,255,255,0.6)',
+                boxShadow: '0 0 8px rgba(255,255,255,0.7)',
               }} />
               {/* Flag */}
               <div
                 className="wave-flag"
                 style={{
-                  position: 'absolute', top: 3, left: 9,
-                  width: 46, height: 32,
+                  position: 'absolute', top: 4, left: 11,
+                  width: 62, height: 44,
                   background: 'white',
-                  borderRadius: '0 5px 5px 0',
-                  boxShadow: '2px 3px 14px rgba(0,0,0,0.5)',
+                  borderRadius: '0 6px 6px 0',
+                  boxShadow: '2px 4px 16px rgba(0,0,0,0.5)',
                   overflow: 'hidden',
-                  padding: 3,
+                  padding: 2,
                 }}
               >
                 <img src="/uafc-logo.png" alt="Union Anatolia FC" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
