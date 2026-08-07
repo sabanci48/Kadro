@@ -28,8 +28,14 @@ export default function ShareFormation() {
   const [singleAssignments, setSingleAssignments] = useState({})
   const [homeAssignments, setHomeAssignments] = useState({})
   const [awayAssignments, setAwayAssignments] = useState({})
+  const [customPositions, setCustomPositions] = useState({})
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+
+  function effectiveSlot(slot, posKey) {
+    const p = customPositions[posKey]
+    return p ? { ...slot, x: p.x, y: p.y } : slot
+  }
 
   useEffect(() => { loadShare() }, [id])
 
@@ -52,7 +58,12 @@ export default function ShareFormation() {
     if (fslots) {
       const single = {}, home = {}, away = {}
       const hasAwaySlots = fslots.some(s => s.team === 'away')
+      const cp = {}
       fslots.forEach(s => {
+        if (s.pos_x != null && s.pos_y != null) {
+          const prefix = s.team === 'away' ? 'match_away' : (s.team === 'home' && hasAwaySlots) ? 'match_home' : 'single_home'
+          cp[`${prefix}_${s.slot_key}`] = { x: s.pos_x, y: s.pos_y }
+        }
         if (!s.players) return
         if (s.team === 'away') away[s.slot_key] = s.players
         else if (s.team === 'home' && hasAwaySlots) home[s.slot_key] = s.players
@@ -61,6 +72,7 @@ export default function ShareFormation() {
       setSingleAssignments(single)
       setHomeAssignments(home)
       setAwayAssignments(away)
+      setCustomPositions(cp)
     }
     setLoading(false)
   }
@@ -92,10 +104,12 @@ export default function ShareFormation() {
 
   const hasAway = Object.keys(awayAssignments).length > 0
   const isMatchView = viewParam === 'match' || (!viewParam && hasAway)
+  const usesSingleAssignments = Object.keys(singleAssignments).length > 0
   // For single view: prefer singleAssignments, fall back to homeAssignments (old data compat)
   const displayAssignments = isMatchView
     ? homeAssignments
-    : (Object.keys(singleAssignments).length > 0 ? singleAssignments : homeAssignments)
+    : (usesSingleAssignments ? singleAssignments : homeAssignments)
+  const singlePosPrefix = usesSingleAssignments ? 'single_home' : 'match_home'
 
   const slots = (MATCH_FORMATS[11] ?? FORMATIONS[formation.formation_type]) || []
   const awaySlots = (MATCH_FORMATS[11] ?? FORMATIONS[formation.away_formation_type || formation.formation_type]) || []
@@ -255,7 +269,7 @@ export default function ShareFormation() {
                 {slots.map(slot => (
                   <PlayerSlot
                     key={`h-${slot.key}`}
-                    slot={{ ...slot, y: 50 - slot.y / 2 }}
+                    slot={effectiveSlot({ ...slot, y: 50 - slot.y / 2 }, `match_home_${slot.key}`)}
                     player={displayAssignments[slot.key]}
                     onClick={() => {}}
                     color="blue"
@@ -267,7 +281,7 @@ export default function ShareFormation() {
                 {awaySlots.map(slot => (
                   <PlayerSlot
                     key={`a-${slot.key}`}
-                    slot={{ ...slot, y: 50 + slot.y / 2 }}
+                    slot={effectiveSlot({ ...slot, y: 50 + slot.y / 2 }, `match_away_${slot.key}`)}
                     player={awayAssignments[slot.key]}
                     onClick={() => {}}
                     color="red"
@@ -279,7 +293,7 @@ export default function ShareFormation() {
               slots.map(slot => (
                 <PlayerSlot
                   key={slot.key}
-                  slot={slot}
+                  slot={effectiveSlot(slot, `${singlePosPrefix}_${slot.key}`)}
                   player={displayAssignments[slot.key]}
                   onClick={() => {}}
                   color="blue"

@@ -40,7 +40,9 @@ create table if not exists formation_slots (
   player_id uuid references players(id) on delete set null,
   slot_key text not null,
   team text not null default 'home',  -- 'home' or 'away'
-  is_substitute boolean default false
+  is_substitute boolean default false,
+  pos_x double precision,  -- custom drag position (% of pitch width), null = use formation preset
+  pos_y double precision   -- custom drag position (% of pitch height), null = use formation preset
 );
 
 -- Row Level Security

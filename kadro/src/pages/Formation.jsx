@@ -187,6 +187,7 @@ export default function Formation() {
   const benchSlots = ALL_BENCH_SLOTS.slice(0, FORMAT_BENCH_COUNT[playerCount] ?? 7)
   const activeFormationLabel = FORMAT_LABELS[playerCount] ?? formationType
   const activeAwayLabel = FORMAT_LABELS[playerCount] ?? awayFormationType
+  const [homeScoreInput = '', awayScoreInput = ''] = result.split('-').map(s => s.trim())
 
   useEffect(() => {
     loadSquad()
@@ -218,6 +219,7 @@ export default function Formation() {
       const { posKey, liveX, liveY } = dragInfoRef.current
       if (hasDraggedRef.current && liveX != null) {
         setCustomPositions(prev => ({ ...prev, [posKey]: { x: liveX, y: liveY } }))
+        setIsDirty(true)
       }
       dragInfoRef.current = null
       setDragLive(null)
@@ -292,14 +294,21 @@ export default function Formation() {
     if (fslots) {
       const single = {}, home = {}, away = {}
       const hasAwayTeam = fslots.some(s => s.team === 'away')
+      const cp = {}
       fslots.forEach(s => {
         if (s.team === 'away') away[s.slot_key] = s.players
         else if (s.team === 'home' && hasAwayTeam) home[s.slot_key] = s.players
         else single[s.slot_key] = s.players
+
+        if (s.pos_x != null && s.pos_y != null) {
+          const prefix = s.team === 'away' ? 'match_away' : (s.team === 'home' && hasAwayTeam) ? 'match_home' : 'single_home'
+          cp[`${prefix}_${s.slot_key}`] = { x: s.pos_x, y: s.pos_y }
+        }
       })
       setAssignments(single)
       setHomeAssignments(home)
       setAwayAssignments(away)
+      setCustomPositions(cp)
     }
     setLoading(false)
   }
@@ -333,14 +342,18 @@ export default function Formation() {
 
     await supabase.from('formation_slots').delete().eq('formation_id', formationId)
     const slotRows = []
+    function posFields(posKey) {
+      const p = customPositions[posKey]
+      return p ? { pos_x: p.x, pos_y: p.y } : {}
+    }
     Object.entries(assignments).forEach(([key, player]) => {
-      if (player) slotRows.push({ formation_id: formationId, slot_key: key, player_id: player.id, team: 'single', is_substitute: key.startsWith('SUB') })
+      if (player) slotRows.push({ formation_id: formationId, slot_key: key, player_id: player.id, team: 'single', is_substitute: key.startsWith('SUB'), ...posFields(`single_home_${key}`) })
     })
     Object.entries(homeAssignments).forEach(([key, player]) => {
-      if (player) slotRows.push({ formation_id: formationId, slot_key: key, player_id: player.id, team: 'home', is_substitute: key.startsWith('SUB') })
+      if (player) slotRows.push({ formation_id: formationId, slot_key: key, player_id: player.id, team: 'home', is_substitute: key.startsWith('SUB'), ...posFields(`match_home_${key}`) })
     })
     Object.entries(awayAssignments).forEach(([key, player]) => {
-      if (player) slotRows.push({ formation_id: formationId, slot_key: key, player_id: player.id, team: 'away', is_substitute: key.startsWith('SUB') })
+      if (player) slotRows.push({ formation_id: formationId, slot_key: key, player_id: player.id, team: 'away', is_substitute: key.startsWith('SUB'), ...posFields(`match_away_${key}`) })
     })
     if (slotRows.length > 0) await supabase.from('formation_slots').insert(slotRows)
 
@@ -904,17 +917,6 @@ export default function Formation() {
           </div>
 
           <div>
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">{t('result')}</label>
-            <input
-              value={result}
-              onChange={e => { setResult(e.target.value); setIsDirty(true) }}
-              placeholder={t('result_placeholder')}
-              className="w-full px-4 py-3.5 rounded-xl text-white text-[15px] outline-none"
-              style={{ background: 'rgba(255,255,255,0.09)', border: '1.5px solid rgba(255,255,255,0.15)' }}
-            />
-          </div>
-
-          <div>
             <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">{t('match_date')}</label>
             <input
               type="date"
@@ -925,28 +927,61 @@ export default function Formation() {
             />
           </div>
 
-          {viewMode === 'match' && (
-            <>
-              <div>
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">{t('home_team')}</label>
+          <div>
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">
+              {viewMode === 'single' ? t('your_team') : t('home_team')}
+            </label>
+            <input
+              value={homeTeamName}
+              onChange={e => { setHomeTeamName(e.target.value); setIsDirty(true) }}
+              className="w-full px-4 py-3.5 rounded-xl text-white text-[15px] outline-none"
+              style={{ background: 'rgba(255,255,255,0.09)', border: '1.5px solid rgba(255,255,255,0.15)' }}
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">
+              {viewMode === 'single' ? t('opponent') : t('away_team')}
+            </label>
+            <input
+              value={awayTeamName}
+              onChange={e => { setAwayTeamName(e.target.value); setIsDirty(true) }}
+              className="w-full px-4 py-3.5 rounded-xl text-white text-[15px] outline-none"
+              style={{ background: 'rgba(255,255,255,0.09)', border: '1.5px solid rgba(255,255,255,0.15)' }}
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">{t('result')}</label>
+            <div className="flex items-center gap-3">
+              <div className="flex-1 min-w-0">
+                <div className="text-[10px] font-bold uppercase tracking-wide mb-1 truncate" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                  {homeTeamName || t('home_team')}
+                </div>
                 <input
-                  value={homeTeamName}
-                  onChange={e => { setHomeTeamName(e.target.value); setIsDirty(true) }}
-                  className="w-full px-4 py-3.5 rounded-xl text-white text-[15px] outline-none"
+                  type="number" min="0" inputMode="numeric"
+                  value={homeScoreInput}
+                  onChange={e => { setResult(`${e.target.value}-${awayScoreInput}`); setIsDirty(true) }}
+                  placeholder="0"
+                  className="w-full px-4 py-3.5 rounded-xl text-white text-[15px] outline-none text-center"
                   style={{ background: 'rgba(255,255,255,0.09)', border: '1.5px solid rgba(255,255,255,0.15)' }}
                 />
               </div>
-              <div>
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">{t('away_team')}</label>
+              <span className="font-bold mt-4" style={{ color: 'rgba(255,255,255,0.3)' }}>–</span>
+              <div className="flex-1 min-w-0">
+                <div className="text-[10px] font-bold uppercase tracking-wide mb-1 truncate" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                  {awayTeamName || t('away_team')}
+                </div>
                 <input
-                  value={awayTeamName}
-                  onChange={e => { setAwayTeamName(e.target.value); setIsDirty(true) }}
-                  className="w-full px-4 py-3.5 rounded-xl text-white text-[15px] outline-none"
+                  type="number" min="0" inputMode="numeric"
+                  value={awayScoreInput}
+                  onChange={e => { setResult(`${homeScoreInput}-${e.target.value}`); setIsDirty(true) }}
+                  placeholder="0"
+                  className="w-full px-4 py-3.5 rounded-xl text-white text-[15px] outline-none text-center"
                   style={{ background: 'rgba(255,255,255,0.09)', border: '1.5px solid rgba(255,255,255,0.15)' }}
                 />
               </div>
-            </>
-          )}
+            </div>
+          </div>
 
           {/* Jersey color pickers */}
           {viewMode === 'single' ? (
