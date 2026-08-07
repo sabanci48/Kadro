@@ -10,11 +10,13 @@ import Profile from './pages/Profile'
 import Payments from './pages/Payments'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 import ShareFormation from './pages/ShareFormation'
 
 function AppLayout({ children }) {
   const location = useLocation()
-  const hideNav = ['/login', '/signup'].includes(location.pathname) || location.pathname.startsWith('/share/')
+  const hideNav = ['/login', '/signup', '/forgot-password', '/reset-password'].includes(location.pathname) || location.pathname.startsWith('/share/')
   return (
     <>
       {children}
@@ -51,6 +53,8 @@ export default function App() {
         <Routes>
           <Route path="/login" element={session ? <Navigate to="/" replace /> : <Login />} />
           <Route path="/signup" element={session ? <Navigate to="/" replace /> : <Signup />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/" element={<ProtectedRoute session={session}><Home /></ProtectedRoute>} />
           <Route path="/formation/:id" element={<ProtectedRoute session={session}><Formation /></ProtectedRoute>} />
           <Route path="/formation" element={<Navigate to="/formation/new" replace />} />

@@ -78,17 +78,16 @@ function EyeIcon({ open }) {
   )
 }
 
-export default function Signup() {
+export default function ResetPassword() {
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [name, setName] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [done, setDone] = useState(false)
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -98,14 +97,40 @@ export default function Signup() {
       return
     }
     setLoading(true)
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { full_name: name } },
-    })
+    const { error } = await supabase.auth.updateUser({ password })
     if (error) setError(error.message)
-    else navigate('/formation/new')
+    else setDone(true)
     setLoading(false)
+  }
+
+  if (done) {
+    return (
+      <div
+        className="flex flex-col min-h-dvh items-center justify-center px-6"
+        style={{ background: '#0d0d0d', paddingTop: 'env(safe-area-inset-top, 0px)' }}
+      >
+        <LangToggle />
+        <div className="text-center">
+          <div
+            className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
+            style={{ background: 'rgba(74,222,128,0.1)', border: '2px solid rgba(74,222,128,0.3)' }}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth={2.5} className="w-8 h-8">
+              <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-white mb-2">{t('password_updated_title')}</h2>
+          <p className="text-gray-500 text-sm mb-6">{t('password_updated_desc')}</p>
+          <button
+            onClick={() => navigate('/')}
+            className="px-8 py-3 rounded-xl font-bold text-sm tracking-widest uppercase transition-all active:scale-95"
+            style={{ background: 'linear-gradient(135deg, #16a34a, #15803d)', boxShadow: '0 0 30px rgba(74,222,128,0.25)' }}
+          >
+            {t('continue')}
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -137,28 +162,12 @@ export default function Signup() {
           >
             KADRO
           </h1>
-          <p className="text-sm mt-2 tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.45)' }}>{t('create_your_account')}</p>
+          <p className="text-sm mt-2 tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.45)' }}>{t('set_new_password')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {[
-            { label: t('full_name'), type: 'text', value: name, onChange: setName, placeholder: t('name_placeholder') },
-            { label: t('email'), type: 'email', value: email, onChange: setEmail, placeholder: 'you@example.com' },
-          ].map(({ label, ...props }) => (
-            <div key={label}>
-              <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">{label}</label>
-              <input
-                {...props}
-                onChange={e => props.onChange(e.target.value)}
-                required
-                className="w-full px-4 py-4 rounded-xl text-white placeholder-gray-700 text-[15px]"
-                style={{ background: '#242424', border: '1.5px solid rgba(255,255,255,0.15)' }}
-              />
-            </div>
-          ))}
-
-          {[
-            { label: t('password'), value: password, onChange: setPassword, placeholder: t('password_placeholder'), show: showPassword, setShow: setShowPassword },
+            { label: t('new_password'), value: password, onChange: setPassword, placeholder: t('new_password_placeholder'), show: showPassword, setShow: setShowPassword },
             { label: t('confirm_password'), value: confirmPassword, onChange: setConfirmPassword, placeholder: t('confirm_password_placeholder'), show: showConfirmPassword, setShow: setShowConfirmPassword },
           ].map(({ label, value, onChange, placeholder, show, setShow }) => (
             <div key={label}>
@@ -200,13 +209,12 @@ export default function Signup() {
             className="w-full py-4 rounded-xl font-bold text-[15px] tracking-widest uppercase transition-all active:scale-95 disabled:opacity-50 mt-2"
             style={{ background: 'linear-gradient(135deg, #16a34a, #15803d)', boxShadow: '0 0 30px rgba(74,222,128,0.25)' }}
           >
-            {loading ? t('creating') : t('create_account')}
+            {loading ? t('updating') : t('update_password')}
           </button>
         </form>
 
         <p className="text-center text-sm text-gray-700 mt-8">
-          {t('already_have_account')}{' '}
-          <Link to="/login" className="text-green-400 font-bold hover:text-green-300">{t('sign_in')}</Link>
+          <Link to="/login" className="text-green-400 font-bold hover:text-green-300">{t('back_to_login')}</Link>
         </p>
         <Footer />
       </div>

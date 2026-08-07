@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import Footer from '../components/Layout/Footer'
 import { useTranslation } from '../i18n/LanguageContext'
@@ -64,48 +64,50 @@ function LangToggle() {
   )
 }
 
-function EyeIcon({ open }) {
-  return open ? (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
-      <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="12" cy="12" r="3" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  ) : (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
-      <path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a20.3 20.3 0 0 1 5.06-5.94M9.9 4.24A10.4 10.4 0 0 1 12 4c7 0 11 7 11 7a20.3 20.3 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M1 1l22 22" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
-}
-
-export default function Signup() {
-  const navigate = useNavigate()
+export default function ForgotPassword() {
   const { t } = useTranslation()
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [name, setName] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [sent, setSent] = useState(false)
 
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
-    if (password !== confirmPassword) {
-      setError(t('passwords_no_match'))
-      return
-    }
     setLoading(true)
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { full_name: name } },
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
     })
     if (error) setError(error.message)
-    else navigate('/formation/new')
+    else setSent(true)
     setLoading(false)
+  }
+
+  if (sent) {
+    return (
+      <div
+        className="flex flex-col min-h-dvh items-center justify-center px-6"
+        style={{ background: '#0d0d0d', paddingTop: 'env(safe-area-inset-top, 0px)' }}
+      >
+        <LangToggle />
+        <div className="text-center">
+          <div
+            className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
+            style={{ background: 'rgba(74,222,128,0.1)', border: '2px solid rgba(74,222,128,0.3)' }}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth={2.5} className="w-8 h-8">
+              <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-white mb-2">{t('reset_email_sent')}</h2>
+          <p className="text-gray-500 text-sm mb-6">
+            {t('reset_email_sent_desc')}<br />
+            <span className="text-green-400 font-semibold">{email}</span>
+          </p>
+          <Link to="/login" className="text-green-400 font-bold text-sm">{t('back_to_login')}</Link>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -137,54 +139,19 @@ export default function Signup() {
           >
             KADRO
           </h1>
-          <p className="text-sm mt-2 tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.45)' }}>{t('create_your_account')}</p>
+          <p className="text-sm mt-2 text-center" style={{ color: 'rgba(255,255,255,0.45)' }}>{t('reset_password_desc')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          {[
-            { label: t('full_name'), type: 'text', value: name, onChange: setName, placeholder: t('name_placeholder') },
-            { label: t('email'), type: 'email', value: email, onChange: setEmail, placeholder: 'you@example.com' },
-          ].map(({ label, ...props }) => (
-            <div key={label}>
-              <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">{label}</label>
-              <input
-                {...props}
-                onChange={e => props.onChange(e.target.value)}
-                required
-                className="w-full px-4 py-4 rounded-xl text-white placeholder-gray-700 text-[15px]"
-                style={{ background: '#242424', border: '1.5px solid rgba(255,255,255,0.15)' }}
-              />
-            </div>
-          ))}
-
-          {[
-            { label: t('password'), value: password, onChange: setPassword, placeholder: t('password_placeholder'), show: showPassword, setShow: setShowPassword },
-            { label: t('confirm_password'), value: confirmPassword, onChange: setConfirmPassword, placeholder: t('confirm_password_placeholder'), show: showConfirmPassword, setShow: setShowConfirmPassword },
-          ].map(({ label, value, onChange, placeholder, show, setShow }) => (
-            <div key={label}>
-              <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">{label}</label>
-              <div className="relative">
-                <input
-                  type={show ? 'text' : 'password'}
-                  value={value}
-                  onChange={e => onChange(e.target.value)}
-                  placeholder={placeholder}
-                  minLength={6}
-                  required
-                  className="w-full px-4 py-4 pr-12 rounded-xl text-white placeholder-gray-700 text-[15px]"
-                  style={{ background: '#242424', border: '1.5px solid rgba(255,255,255,0.15)' }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShow(s => !s)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-400"
-                  tabIndex={-1}
-                >
-                  <EyeIcon open={show} />
-                </button>
-              </div>
-            </div>
-          ))}
+          <div>
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">{t('email')}</label>
+            <input
+              type="email" value={email} onChange={e => setEmail(e.target.value)} required
+              placeholder="you@example.com"
+              className="w-full px-4 py-4 rounded-xl text-white placeholder-gray-700 text-[15px]"
+              style={{ background: '#242424', border: '1.5px solid rgba(255,255,255,0.15)' }}
+            />
+          </div>
 
           {error && (
             <div
@@ -200,13 +167,12 @@ export default function Signup() {
             className="w-full py-4 rounded-xl font-bold text-[15px] tracking-widest uppercase transition-all active:scale-95 disabled:opacity-50 mt-2"
             style={{ background: 'linear-gradient(135deg, #16a34a, #15803d)', boxShadow: '0 0 30px rgba(74,222,128,0.25)' }}
           >
-            {loading ? t('creating') : t('create_account')}
+            {loading ? t('sending') : t('send_reset_link')}
           </button>
         </form>
 
         <p className="text-center text-sm text-gray-700 mt-8">
-          {t('already_have_account')}{' '}
-          <Link to="/login" className="text-green-400 font-bold hover:text-green-300">{t('sign_in')}</Link>
+          <Link to="/login" className="text-green-400 font-bold hover:text-green-300">{t('back_to_login')}</Link>
         </p>
         <Footer />
       </div>

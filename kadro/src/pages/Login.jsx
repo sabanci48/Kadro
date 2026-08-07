@@ -182,6 +182,12 @@ export default function Login() {
             />
           </div>
 
+          <div className="flex justify-end -mt-1">
+            <Link to="/forgot-password" className="text-xs text-gray-400 hover:text-green-400 transition-colors">
+              {t('forgot_password')}
+            </Link>
+          </div>
+
           {error && (
             <div
               className="text-red-400 text-sm text-center px-4 py-3 rounded-xl"
